@@ -18,7 +18,7 @@ param (
 
 
 #cd 'C:\Files\ZDrive\QuickThink Cloud Dropbox\Operations\Scripts\boxstarter'
-$scriptVersion = 20190806
+$scriptVersion = 5
 Write-Host "Script Version = $($scriptVersion)"
 
 
