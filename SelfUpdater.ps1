@@ -26,7 +26,8 @@ Write-Host "Script Version = $($scriptVersion)"
 $scriptName = "SelfUpdater.ps1"
 $updateDirectoryName = "SelfUpdaterUpdates"
 $updatedVersionName = "SelfUpdater_latest.ps1"
-$scriptSourceURL = "https://www.dropbox.com/s/n63hlqg0v5k8piz/UpdatedVersion.ps1?dl=1"
+#$scriptSourceURL = "https://www.dropbox.com/s/n63hlqg0v5k8piz/UpdatedVersion.ps1?dl=1"
+$scriptSourceURL = "https://github.com/quickthinkcloud/public/blob/master/SelfUpdater.ps1"
 
 
 Function UpdatesAvailable {
