@@ -58,7 +58,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20190502
+$scriptVersion = 20190806
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -104,14 +104,63 @@ $numTrustedDomains = 0
 #Run the config .ps1 to set the variables
 . .\$ConfigFile
 
-## ADMIN/SRIPT WRITER VARIABLES ##
-# Dropping out of powershell to grab the hostname
-#$scripthost = Invoke-Command -ScriptBlock {hostname}
+### SELF UPDATER SECTION ###
+#SCRIPT ADMIN VARIABLES!
+$scriptName = "RDSLicensingAudit.ps1"
+$updateDirectoryName = "RDSLAUpdates"
+$updatedVersionName = "RDSLAU_latest.ps1"
+$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
 
-### Parameters ###
-<#Param(
-#[parameter(Mandatory=$true,HelpMessage="Path to log file")]$LogPath
-)#>
+Function UpdatesAvailable {
+
+    #check that the destination directory exists
+    if (!(Test-Path $updateDirectoryName)) {  
+        #CreateDirectory
+        New-Item -Name "$($updateDirectoryName)" -ItemType "directory"
+    }
+    
+    #check the latest update file exists
+    if (!(Test-Path "$($updateDirectoryName)\$($updatedVersionName)")) {
+        
+        #download the latest
+        Invoke-WebRequest $scriptSourceURL -OutFile "$($updateDirectoryName)\$($updatedVersionName)"
+    }
+
+} # End Function
+Function Update-Myself {
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 0)]
+        [string]$SourcePath
+    )
+    #check that the destination file exists
+    if (Test-Path $SourcePath)
+    {
+    #The path of THIS script
+    $CurrentScript = $MyInvocation.ScriptName
+        if (!($SourcePath -eq $CurrentScript ))
+        {
+            if ($(Get-Item $SourcePath).LastWriteTimeUtc -gt $(Get-Item $CurrentScript ).LastWriteTimeUtc)
+            {
+                write-host "Updating..."
+                Copy-Item $SourcePath $CurrentScript 
+                #If the script was updated, run it with orginal parameters
+                #&$CurrentScript $script:args
+                &$CurrentScript $ConfigFile
+                exit
+            }
+        }
+    }
+    write-host "No update required"
+    Remove-Item "$($updateDirectoryName)" -Recurse -Force -Confirm:$false
+} # End Function
+
+UpdatesAvailable
+Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
+### END OF SELF UPDATER SECTION ###
+
 
 ### FUNCTIONS ###
 Function Convert-FspToUsername 
