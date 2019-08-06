@@ -58,16 +58,17 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20190806
-$LogPath = "$($workingDir)LicensingAudit.log"
-Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
-
 ### GLOBAL VARIABLES ###
 ## USER CONFIGURED VARIABLES ##
 # Monitor the following domain and groups
 $customerName = "CustomerName"
-$workingDir = "C:\Users\$($env:USERNAME)\"
+#$workingDir = "C:\Users\$($env:USERNAME)\"
+$workingDir = Get-Location
 $GroupName = @("RDS_Users","RDS_Excelerator")
+
+$scriptVersion = 201908062
+$LogPath = "$($workingDir)LicensingAudit.log"
+Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
  
 <# Creating PSCredential object
 $trustedDom1 = "TrustedDom1.com"
