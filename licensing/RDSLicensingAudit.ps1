@@ -19,7 +19,7 @@ $customerName = "CustomerName"
 #$workingDir = Get-Location
 $GroupName = @("RDS_Users","RDS_Excelerator")
 
-$scriptVersion = 201908063
+$scriptVersion = 20190806
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
  
