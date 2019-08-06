@@ -16,7 +16,7 @@ param (
 # Monitor the following domain and groups
 $customerName = "CustomerName"
 #$workingDir = "C:\Users\$($env:USERNAME)\"
-$workingDir = Get-Location
+#$workingDir = Get-Location
 $GroupName = @("RDS_Users","RDS_Excelerator")
 
 $scriptVersion = 201908063
