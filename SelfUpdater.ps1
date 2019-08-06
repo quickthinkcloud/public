@@ -21,7 +21,7 @@ param (
 $scriptVersion = 20190806 # Update by Chris Phillips
 Write-Host "Script Version = $($scriptVersion)"
 
-
+### SELF UPDATER SECTION ###
 #SCRIPT ADMIN VARIABLES!
 $scriptName = "SelfUpdater.ps1"
 $updateDirectoryName = "SelfUpdaterUpdates"
@@ -77,3 +77,4 @@ Function Update-Myself {
 
 UpdatesAvailable
 Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
+### END OF SELF UPDATER SECTION ###
