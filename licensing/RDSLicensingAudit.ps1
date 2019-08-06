@@ -145,7 +145,7 @@ Function Update-Myself {
             if ($(Get-Item $SourcePath).LastWriteTimeUtc -gt $(Get-Item $CurrentScript ).LastWriteTimeUtc)
             {
                 write-host "Updating..."
-                Copy-Item $SourcePath $CurrentScript 
+                Copy-Item $SourcePath $CurrentScript -Force
                 #If the script was updated, run it with orginal parameters
                 #&$CurrentScript $script:args
                 &$CurrentScript $ConfigFile
