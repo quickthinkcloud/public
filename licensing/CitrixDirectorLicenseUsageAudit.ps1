@@ -35,7 +35,7 @@ $citrixDirectorServer = "CitrixDirectorServer" # Storefront Server
 $scriptName = "CitrixDirectorLicenseUsageAudit.ps1"
 $updateDirectoryName = "CDLUAUpdates"
 $updatedVersionName = "CDLUA_latest.ps1"
-$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
+$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/CitrixDirectorLicenseUsageAudit.ps1"
 
 Function UpdatesAvailable {
 
