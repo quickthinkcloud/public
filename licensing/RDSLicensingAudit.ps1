@@ -1,51 +1,4 @@
-﻿### ABOUT AND INITIAL SETUP INFO/SCRIPTS ### 
-# 20180301
-<#
-Author: Chris Phillips, for QuickThink Cloud Limited
-Date: 20/12/2016
-Version: 1.0
-PURPOSE:  This script is monitoring group(s) in AD and send an email when someone is added or removed
-
-REQUIRES: ActiveDirectory Module or Quest AD Snapin
-
-VERSION HISTORY
-1.0 2013.06.08: Initial Version created from reference TOOL-Monitor-AD_DomainAdmins_EnterpriseAdmins.ps1 / Francois-Xavier CAT. 
-                 This version using the activedirectory module rather than the quest tool.
-OTHER NOTES
-Exporting SecureString from Get-Credential
-(Get-Credential).Password | ConvertFrom-SecureString | Out-File "Password.txt"
-
-### Initial Setup Script ###
-# Creating PSCredential object
-$trustedDom1 = "AD-NNHS"
-$trustedDom1Server = $trustedDom1 # set to an IP i.e."1.2.3.1" # use only if explicitely required, else set this = $trustedDom1
-$User = "AD-NNHS\SVC-AgressoCloud"
-$File = "$($trustedDom1)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom2 = "CB-INT.net"
-$trustedDom2Server = $trustedDom2 # set to an IP i.e."1.2.3.2" # use only if explicitely required, else set this = $trustedDom2
-$User = "CB-INT\service-qtc"
-$File = "$($trustedDom2)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom3 = "ME.cyrilsweett.com"
-$trustedDom3Server = $trustedDom3 # set to an IP i.e."1.2.3.3" # use only if explicitely required, else set this = $trustedDom3
-$User = "ME\service-qtc-me"
-$File = "$($trustedDom3)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom4 = "EU.cyrilsweett.com"
-$trustedDom4Server = $trustedDom4 # set to an IP i.e."1.2.3.4" # use only if explicitely required, else set this = $trustedDom4
-$User = "EU\QTCAdmin"
-$File = "$($trustedDom4)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-#>
-
-### PARAMETERS (must be the first section of the script!)### 
+﻿### PARAMETERS (must be the first section of the script!)### 
 param (
     $ConfigFile = $(throw "You must specify a config file")
     #Working parameters
@@ -66,7 +19,7 @@ $customerName = "CustomerName"
 $workingDir = Get-Location
 $GroupName = @("RDS_Users","RDS_Excelerator")
 
-$scriptVersion = 201908062
+$scriptVersion = 201908063
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
  
@@ -76,27 +29,6 @@ $trustedDom1Server = $trustedDom1 # set to an IP i.e."1.2.3.1" # use only if exp
 $User = "TrustedDom1\QTC-user"
 $File = "$($trustedDom1)_pw.txt"
 $DomCreds1=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
-
-# Creating PSCredential object
-$trustedDom2 = "TrustedDom2.com"
-$trustedDom2Server = $trustedDom2 # set to an IP i.e."1.2.3.2" # use only if explicitely required, else set this = $trustedDom2
-$User = "TrustedDom2\service-qtc"
-$File = "$($trustedDom2)_pw.txt"
-$DomCreds2=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
-
-# Creating PSCredential object
-$trustedDom3 = "TrustedDom3.com"
-$trustedDom3Server = $trustedDom3 # set to an IP i.e."1.2.3.3" # use only if explicitely required, else set this = $trustedDom3
-$User = "TrustedDom3\service-qtc-me"
-$File = "$($trustedDom3)_pw.txt"
-$DomCreds3=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
-
-# Creating PSCredential object
-$trustedDom4 = "TrustedDom4.com"
-$trustedDom4Server = $trustedDom4 # set to an IP i.e."1.2.3.4" # use only if explicitely required, else set this = $trustedDom4
-$User = "TrustedDom4\QTCAdmin"
-$File = "$($trustedDom4)_pw.txt"
-$DomCreds4=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
 #>
 
 $numTrustedDomains = 0
