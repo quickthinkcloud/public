@@ -2,6 +2,7 @@
 # THIS:                                                      https://qtcloud.box.com/s/3cp9vgj8jowkbwfsap0gb5rwoq8l8thl                                                              
 # BECOMES THIS:                                              https://qtcloud.box.com/shared/static/3cp9vgj8jowkbwfsap0gb5rwoq8l8thl.ps1
 # SO START COMMAND:  START http://boxstarter.org/package/url?https://qtcloud.box.com/shared/static/3cp9vgj8jowkbwfsap0gb5rwoq8l8thl.ps1
+inetcpl.cpl
 $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
