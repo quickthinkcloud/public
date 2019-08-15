@@ -1,10 +1,11 @@
 <# URL
+inetcpl.cpl
 $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
-START http://boxstarter.org/package/url?https://www.dropbox.com/s/1owzcherutqv9ki/Base_Server_2016_MSOffice2013.ps1?dl=1
+START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/Base_Server_2016_MSOffice2013.ps1?dl=1
 #>
 
 ### FUNCTIONS ###
