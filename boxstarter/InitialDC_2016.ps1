@@ -7,8 +7,8 @@ Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction Silentl
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
-# START http://boxstarter.org/package/url?https://www.dropbox.com/s/hx2rzkspz26pwt4/InitialDC_2016.ps1?dl=1
-START https://bit.ly/2TFnbj0
+# START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/InitialDC_2016.ps1
+START https://bit.ly/2TyggcW
 #>
 
 Start-Transcript c:\repository\bs_install.txt -Append
