@@ -2,6 +2,7 @@
 # THIS:                                                      https://www.dropbox.com/s/4xh69lpjc7jyrwz/InitialDC_withMedia.ps1?dl=0
 # BECOMES THIS:                                              https://www.dropbox.com/s/4xh69lpjc7jyrwz/InitialDC_withMedia.ps1?dl=1
 # SO START COMMAND:  START http://boxstarter.org/package/url?https://www.dropbox.com/s/4xh69lpjc7jyrwz/InitialDC_withMedia.ps1?dl=1
+inetcpl.cpl
 $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
