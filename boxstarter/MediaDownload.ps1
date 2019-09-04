@@ -59,7 +59,7 @@ Function MSIDownloadAndInstall {
 
 ##### Base_Server Header #####
 # Boxstarter options
-$Boxstarter.RebootOk=$true # Allow reboots?
+$Boxstarter.RebootOk=$false # Allow reboots?
 $Boxstarter.NoPassword=$false # Is this a machine with no login password?
 $Boxstarter.AutoLogin=$true # Save my password securely and auto-login after a reboot
 $useAWSRepository = $true
@@ -344,6 +344,29 @@ Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 
 #SQL
+$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
+$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2017_64Bit_English_OEM_VL_X21-56995.ISO"
+$softwareName = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2017_64Bit_English_OEM_VL_X21-56995"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+
+$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
+$softwareFilename = "SQLServer2017-x64-ENU-Dev.iso"
+$softwareName = "SQLServer2017-x64-ENU-Dev"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+
+$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
+$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231.ISO"
+$softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+
+
+
 $softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
 $softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231.ISO"
 $softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231"
