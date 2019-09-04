@@ -10,6 +10,8 @@ New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
 START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/MediaDownload.ps1
 #>
+$version = 20190904
+Write-Host "Version: $($version)" -ForegroundColor Yellow
 
 ### FUNCTIONS ###
 Function Test-RegistryValue {
