@@ -4,7 +4,7 @@ Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction Silentl
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
-START http://boxstarter.org/package/url?https://www.dropbox.com/s/b72j5pjypkg9d7e/Base_Server_MSOffice2013.ps1?dl=1
+START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/Base_Server_MSOffice2013.ps1
 #>
 
 ### FUNCTIONS ###
