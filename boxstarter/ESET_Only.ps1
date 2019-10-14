@@ -4,7 +4,7 @@ Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction Silentl
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
-START http://boxstarter.org/package/url?https://www.dropbox.com/s/7mz4lgjn4mvzox5/ESET_Only.ps1?dl=1
+START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/ESET_Only.ps1
 #>
 
 ### FUNCTIONS ###
@@ -206,7 +206,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     Write-Host "Created new file and text content added"
 
     #download the file
-    invoke-webrequest https://www.dropbox.com/s/n95bk0ivc4b5agz/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile
+    invoke-webrequest https://www.dropbox.com/s/gxzr5x4h9y94qdy/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile # New Location 20191014
 
     #Extract Media
     #if (Test-Path C:\Repository\ESETInstaller.exe) { 
