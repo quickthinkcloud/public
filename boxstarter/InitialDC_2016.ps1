@@ -215,7 +215,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
 
     #download the file
     #invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
-    invoke-webrequest https://www.dropbox.com/s/n95bk0ivc4b5agz/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile
+    invoke-webrequest https://www.dropbox.com/s/gxzr5x4h9y94qdy/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile # New Location 20191014
 
     #Extract Media
     #if (Test-Path C:\Repository\ESETInstaller.exe) { 
