@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20191121
+$scriptVersion = 20191121.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -178,10 +178,10 @@ Foreach ($sess in $sessionDate1) {
     $sid = $null
     $ClientAddress = $null
     $ClientName = $null
-    $ConnectedViaHostName = $null
-    $LaunchedViaHostName = $null
-    $ConnectedViaIPAddress = $null
-    $LaunchedViaIPAddress = $null
+    #$ConnectedViaHostName = $null
+    #$LaunchedViaHostName = $null
+    #$ConnectedViaIPAddress = $null
+    #$LaunchedViaIPAddress = $null
 
     #get the session info
     $sessUserID = $sess.Userid.InnerText
@@ -198,10 +198,10 @@ Foreach ($sess in $sessionDate1) {
     #get the connection info
     $ClientAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientAddress
     $ClientName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientName
-    $ConnectedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaHostName
-    $LaunchedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaHostName
-    $ConnectedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaIPAddress
-    $LaunchedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaIPAddress
+    #$ConnectedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaHostName
+    #$LaunchedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaHostName
+    #$ConnectedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaIPAddress
+    #$LaunchedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaIPAddress
 
     #$ClientAddress.ClientAddress
     #$ClientName.ClientName
@@ -216,10 +216,10 @@ Foreach ($sess in $sessionDate1) {
     $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $fullName.FullName -Name FullName
     $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientAddress.ClientAddress -Name ClientAddress
     $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientName.ClientName -Name ClientName
-    $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaHostName.ConnectedViaHostName -Name ConnectedViaHostName
-    $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaHostName.LaunchedViaHostName -Name LaunchedViaHostName
-    $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaIPAddress.ConnectedViaIPAddress -Name ConnectedViaIPAddress
-    $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaIPAddress.LaunchedViaIPAddress -Name LaunchedViaIPAddress
+    #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaHostName.ConnectedViaHostName -Name ConnectedViaHostName
+    #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaHostName.LaunchedViaHostName -Name LaunchedViaHostName
+    #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaIPAddress.ConnectedViaIPAddress -Name ConnectedViaIPAddress
+    #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaIPAddress.LaunchedViaIPAddress -Name LaunchedViaIPAddress
     $global:arrCitrixUsersAndSessions += $currentCitrixUserSessionObject  
     
     $mycounter += 1
