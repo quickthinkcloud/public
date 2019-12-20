@@ -353,18 +353,43 @@ Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 #Citrix
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
+$softwareFilename = "XenApp_and_XenDesktop_7_15_5000.iso"
+$softwareName = "XenApp_and_XenDesktop_7_15_5000"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+
+<#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "XenApp_and_XenDesktop_7_15_4000.iso"
 $softwareName = "XenApp_and_XenDesktop_7_15_4000"
 # invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#>
 
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
+$softwareFilename = "build-12.1-55.13_nc_64.tgz"
+$softwareName = "build-12.1-55.13_nc_64"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#>
+
+$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
+$softwareFilename = "build-12.0-62.10_nc_32.tgz"
+$softwareName = "build-12.0-62.10_nc_32"
+# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#>
+
+<#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "build-12.0-61.8_nc_32.tgz"
 $softwareName = "build-12.0-61.8_nc_32"
 # invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#>
 
 <#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "build-12.0-59.9_nc_32.tgz"
