@@ -293,142 +293,62 @@ if (Test-PendingReboot) { Invoke-Reboot }
 # Media Downloads!
 #SQL
 $softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2017_64Bit_English_OEM_VL_X21-56945.ISO"
-$softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2017_64Bit_English_OEM_VL_X21-56945"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2019Dec2019_64Bit_English_OEM_VL_X22-22109.ISO"
+$softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2019Dec2019_64Bit_English_OEM_VL_X22-22109"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
-
+<#
 $softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
 $softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2017_64Bit_English_OEM_VL_X21-56995.ISO"
 $softwareName = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2017_64Bit_English_OEM_VL_X21-56995"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#>
 
 $softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SQLServer2017-x64-ENU-Dev.iso"
-$softwareName = "SQLServer2017-x64-ENU-Dev"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+$softwareFilename = "SQLServer2019-x64-ENU-Dev.iso"
+$softwareName = "SQLServer2019-x64-ENU-Dev"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
-$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231.ISO"
-$softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
-
-
-$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231.ISO"
-$softwareName = "SW_DVD9_NTRL_SQL_Svr_Standard_Edtn_2016w_SP1_64Bit_English_OEM_VL_X21-22231"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
-$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2016w_SP2_64Bit_English_OEM_VL_X21-59533.ISO"
-$softwareName = "SW_DVD9_NTRL_SQL_Svr_Ent_Core_2016w_SP2_64Bit_English_OEM_VL_X21-59533"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
-$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_SQL_Svr_Standard_Edtn_2014w_SP2_64Bit_English_MLF_X21-04422.ISO"
-$softwareName = "SW_DVD9_SQL_Svr_Standard_Edtn_2014w_SP2_64Bit_English_MLF_X21-04422"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
-$softwareFolderInQTCsoftwareREPO = "Microsoft/SQL_Server" # no trailing slash
-$softwareFilename = "SW_DVD9_SQL_Svr_Standard_Edtn_2012w_SP3_64Bit_English_MLF_X20-66838.ISO"
-$softwareName = "SW_DVD9_SQL_Svr_Standard_Edtn_2012w_SP3_64Bit_English_MLF_X20-66838"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 #Citrix
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "XenApp_and_XenDesktop_7_15_5000.iso"
 $softwareName = "XenApp_and_XenDesktop_7_15_5000"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
-<#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "XenApp_and_XenDesktop_7_15_4000.iso"
-$softwareName = "XenApp_and_XenDesktop_7_15_4000"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-#>
-
+#https://qtcsoftwarerepo.s3-eu-west-1.amazonaws.com/Citrix/build-12.1-55.18_nc_64.tgz
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.1-55.13_nc_64.tgz"
-$softwareName = "build-12.1-55.13_nc_64"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-#>
-
-$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.0-62.10_nc_32.tgz"
-$softwareName = "build-12.0-62.10_nc_32"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-#>
-
-<#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.0-61.8_nc_32.tgz"
-$softwareName = "build-12.0-61.8_nc_32"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-#>
-
-<#$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.0-59.9_nc_32.tgz"
-$softwareName = "build-12.0-59.9_nc_32"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
-$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.0-57.19_nc_32.tgz"
-$softwareName = "build-12.0-57.19_nc_32"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
+$softwareFilename = "build-12.1-55.18_nc_64.tgz"
+$softwareName = "build-12.1-55.18_nc_64"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 #>
 
 
 #UBW
+<#
 $softwareFolderInQTCsoftwareREPO = "UNIT4/Core" # no trailing slash
 $softwareFilename = "AGRM7.zip"
 $softwareName = "AGRM7"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 $softwareFolderInQTCsoftwareREPO = "UNIT4/Core" # no trailing slash
 $softwareFilename = "AGRM6.zip"
 $softwareName = "AGRM6"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 $softwareFolderInQTCsoftwareREPO = "UNIT4/Core" # no trailing slash
 $softwareFilename = "AGRM5.zip"
 $softwareName = "AGRM5"
-# invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile # or download file from S3
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
-
+#>
 
 
 
