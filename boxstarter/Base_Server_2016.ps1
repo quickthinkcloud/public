@@ -225,15 +225,16 @@ if (!(Test-Path "C:\Repository\CentrastageInstallAttempted.txt")) {
 } # end if 
 
 # ESET AV
-Write-Host "ESET" -ForegroundColor yellow
 $esetFile = "C:\Repository\ESETInstaller.7z"
 if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     New-Item -path C:\Repository -name ESETInstallAttempted.txt -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting ESET installation."
     Write-Host "Created new file and text content added"
 
     #download the file
-    invoke-webrequest https://www.dropbox.com/s/gxzr5x4h9y94qdy/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile # New Location 20191014
-    
+    #invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
+    #invoke-webrequest https://www.dropbox.com/s/gxzr5x4h9y94qdy/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile # New Location 20191014
+    invoke-webrequest https://www.dropbox.com/s/j5xfsctjfd5nhcy/ESETInstaller.7z?dl=1 -OutFile $esetFile # New Location 20200225
+
     #Extract Media
     #if (Test-Path C:\Repository\ESETInstaller.exe) { 
     #    Write-Host "Folder exists already"
@@ -241,7 +242,9 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
         & "C:\Program Files\7-Zip\7z.exe" x "$($esetFile)" -o"C:\Repository\"
     #}
 
-    New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ERA_Installer_x64_en_US.exe --silent --accepteula"
+    #New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ERA_Installer_x64_en_US.exe --silent --accepteula"
+    New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ESMC_Installer_x64_en_US.exe --silent --accepteula" #New Installer 20200225
+
     & C:\Repository\ESETInstaller.bat
     # & $esetFile --silent --accepteula
 
@@ -260,6 +263,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
         Remove-Item C:\Repository\ERA_Installer_x64_en_US.exe -Force
     } # end if
 } # end if
+# END of ESET AV
 
 #Set Ciphers to QTC Best Practice
 Write-Host "IISCrypto" -ForegroundColor yellow
