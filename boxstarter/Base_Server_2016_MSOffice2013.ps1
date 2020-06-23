@@ -290,7 +290,7 @@ if (Test-PendingReboot) { Invoke-Reboot }
 
 
 #
-# Office_2013w_SP1
+<# Office_2013w_SP1
 $softwareName = "Office_2013w_SP1"
 $softwareFilename = "Office_2013w_SP1.zip"
 if (!(Test-Path "C:\Repository\$($softwareName)InstallAttempted.txt")) {
@@ -331,7 +331,91 @@ if (!(Test-Path "C:\Repository\$($softwareName)InstallAttempted.txt")) {
 
 } # end if
 if (Test-PendingReboot) { Invoke-Reboot }
-#
+#>
+# Excel_2013w_SP1
+$softwareName = "Excel_2013w_SP1"
+$softwareFilename = "Excel_2013w_SP1.zip"
+if (!(Test-Path "C:\Repository\$($softwareName)InstallAttempted.txt")) {
+    New-Item -path C:\Repository -name "$($softwareName)InstallAttempted.txt" -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting $($softwareName) installation."
+    Write-Host "Created new file and text content added"
+
+    #download the file
+    # invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
+    # or
+    # download file from S3
+    Read-S3Object -BucketName qtcsoftwarerepo -Key "Microsoft/Office/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1 
+
+    #Extract Media
+    #if (Test-Path C:\Repository\ESETInstaller.exe) { 
+    #    Write-Host "Folder exists already"
+    #} else {
+        & "C:\Program Files\7-Zip\7z.exe" x "C:\Repository\$($softwareFilename)" -o"C:\Repository\"
+    #}
+
+    #Install
+    Write-Host "Installing..."
+    if (Test-Path "C:\Program Files (x86)\Microsoft Office") { 
+        Write-Host "Office Already Installed"
+    } else {
+        start-process "C:\Repository\$($softwareName)\setup.exe" -wait
+    } # end if else
+} else {
+    Add-Content -path "C:\Repository\$($softwareName)InstallAttempted.txt" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Detected previous installation attempt - aborting."
+    Write-Host "File already exists and new text content added"
+
+    if (!(Test-Path "C:\Reposotory\$($softwareFilename)")) {
+        Write-Host "$($myCounter) - All going ok..."
+        $myCounter = $myCounter + 1
+    } else {
+        Remove-Item "C:\Reposotory\$($softwareFilename)" -Force
+    } # end if
+
+
+} # end if
+if (Test-PendingReboot) { Invoke-Reboot }
+
+# Word_2013w_SP1.zip
+$softwareName = "Word_2013w_SP1"
+$softwareFilename = "Word_2013w_SP1.zip"
+if (!(Test-Path "C:\Repository\$($softwareName)InstallAttempted.txt")) {
+    New-Item -path C:\Repository -name "$($softwareName)InstallAttempted.txt" -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting $($softwareName) installation."
+    Write-Host "Created new file and text content added"
+
+    #download the file
+    # invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
+    # or
+    # download file from S3
+    Read-S3Object -BucketName qtcsoftwarerepo -Key "Microsoft/Office/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1 
+
+    #Extract Media
+    #if (Test-Path C:\Repository\ESETInstaller.exe) { 
+    #    Write-Host "Folder exists already"
+    #} else {
+        & "C:\Program Files\7-Zip\7z.exe" x "C:\Repository\$($softwareFilename)" -o"C:\Repository\"
+    #}
+
+    #Install
+    Write-Host "Installing..."
+    if (Test-Path "C:\Program Files (x86)\Microsoft Office") { 
+        Write-Host "Office Already Installed"
+    } else {
+        start-process "C:\Repository\$($softwareName)\setup.exe" -wait
+    } # end if else
+} else {
+    Add-Content -path "C:\Repository\$($softwareName)InstallAttempted.txt" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Detected previous installation attempt - aborting."
+    Write-Host "File already exists and new text content added"
+
+    if (!(Test-Path "C:\Reposotory\$($softwareFilename)")) {
+        Write-Host "$($myCounter) - All going ok..."
+        $myCounter = $myCounter + 1
+    } else {
+        Remove-Item "C:\Reposotory\$($softwareFilename)" -Force
+    } # end if
+
+
+} # end if
+if (Test-PendingReboot) { Invoke-Reboot }
+
 
 
 ##### Base_Server Footer #####
