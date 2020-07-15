@@ -319,8 +319,8 @@ Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 #Citrix
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "XenApp_and_XenDesktop_7_15_5000.iso"
-$softwareName = "XenApp_and_XenDesktop_7_15_5000"
+$softwareFilename = "XenApp_and_XenDesktop_7_15_6000.iso"
+$softwareName = "XenApp_and_XenDesktop_7_15_6000"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
