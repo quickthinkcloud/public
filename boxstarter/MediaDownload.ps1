@@ -324,6 +324,12 @@ $softwareName = "XenApp_and_XenDesktop_7_15_6000"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
+$softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
+$softwareFilename = "Citrix_Virtual_Apps_and_Desktops_7_1912_1000.iso"
+$softwareName = "Citrix_Virtual_Apps_and_Desktops_7_1912_1000"
+Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+Unblock-File -Path "C:\Repository\$($softwareFilename)"
+
 #https://qtcsoftwarerepo.s3-eu-west-1.amazonaws.com/Citrix/build-12.1-55.18_nc_64.tgz
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "build-12.1-57.18_nc_64.tgz"
