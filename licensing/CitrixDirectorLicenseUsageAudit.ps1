@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20200401
+$scriptVersion = 20200901
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -92,6 +92,9 @@ Function Update-Myself {
 #Obtains the user credentials needed for accessing the XenDesktop Site monitoring information
 #$cred = Get-Credential $env:USERNAME
 $cred = $ctxCreds
+
+#Restart CitrixMonitor Service (So Director is working!)
+Invoke-Command -ComputerName $citrixDirectorServer -Credential $cred -ScriptBlock {Restart-Service CitrixMonitor -Force}
 
 #Grab ‘Users’ data from XenDesktop site
 #Replace localhost with FQDN of DDC if not running on DDC
