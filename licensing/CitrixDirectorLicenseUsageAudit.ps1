@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20200901
+$scriptVersion = 20201001
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -98,35 +98,35 @@ Invoke-Command -ComputerName $citrixDirectorServer -Credential $cred -ScriptBloc
 
 #Grab ‘Users’ data from XenDesktop site
 #Replace localhost with FQDN of DDC if not running on DDC
-#$userdata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Users” -UseDefaultCredentials
-$userdata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Users” -Credential $cred
+#$userdata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Users” -UseDefaultCredentials
+$userdata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Users” -Credential $cred
  
 #Populate User objects in $users variable
 $users = $userdata.content.properties
  
 #Obtain ‘Sessions’ data from XenDesktop Site
 #Replace localhost with FQDN of DDC if not running on DDC
-#$sessiondata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Sessions” -UseDefaultCredentials
-$sessiondata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Sessions” -Credential $cred
+#$sessiondata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Sessions” -UseDefaultCredentials
+$sessiondata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Sessions” -Credential $cred
  
 #Populate Session objects in $sessions variable
 $sessions = $sessiondata.content.properties
 
 #Obtain ‘Machines’ data from XenDesktop Site
 #Replace localhost with FQDN of DDC if not running on DDC
-#$machinedata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Machines” -UseDefaultCredentials
-#$machinedata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Machines” -Credential $cred
+#$machinedata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Machines” -UseDefaultCredentials
+#$machinedata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Machines” -Credential $cred
 #$machines = $machinedata.content.properties
 
 #Connections
-$connectiondata = Invoke-RestMethod -uri “http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Connections” -Credential $cred
+$connectiondata = Invoke-RestMethod -uri "http://$($citrixDirectorServer)/Citrix/Monitor/Odata/v1/Data/Connections” -Credential $cred
 $connections = $connectiondata.content.properties
 
 
  
 #Create $date variable and set date to a temporary value
-#$date = “2015-01-06”
-#$date = “2017-03”
+#$date = "2015-01-06”
+#$date = "2017-03”
 get-date -Format yyyy-MM-dd
 $year = get-date -Format yyyy
 $currentMonth = get-date -Format MM
@@ -159,12 +159,12 @@ switch ($userinput)
     1 {$date = "$($year)-$($lastMonth)"}
     2 {$date = "$($year)-$($currentMonth)"}
     3 { #Query the user for an updated date value, in specified format
-        $date = read-host “Please enter the date you wish to search (YYYY-MM-DD or YYYY-MM): “
+        $date = read-host "Please enter the date you wish to search (YYYY-MM-DD or YYYY-MM): "
     }
 }
  
 #Returns the sessions for the specified date and populatess them into the $sessionDate1 variable
-$sessionDate1 = $sessions | where {$_.startdate.InnerText -like “$($date)*”}
+$sessionDate1 = $sessions | where {$_.startdate.InnerText -like "$($date)*”}
 
 
 
