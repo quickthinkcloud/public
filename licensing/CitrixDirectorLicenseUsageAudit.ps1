@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201001
+$scriptVersion = 20201014
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -83,8 +83,8 @@ Function Update-Myself {
     Remove-Item "$($updateDirectoryName)" -Recurse -Force -Confirm:$false
 } # End Function
 
-#UpdatesAvailable
-#Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
+UpdatesAvailable
+Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
 ### END OF SELF UPDATER SECTION ###
 
 
