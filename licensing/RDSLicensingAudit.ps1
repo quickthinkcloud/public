@@ -736,8 +736,10 @@ Function Update-Myself {
                    Position = 0)]
         [string]$SourcePath
     )
+    
     #check that the destination file exists
-    if (Test-Path $SourcePath)
+    $fullSourcePath = "$(Get-Location)\$SourcePath"
+    if (Test-Path "$fullSourcePath")
     {
     #The path of THIS script
     $CurrentScript = $MyInvocation.ScriptName
@@ -761,6 +763,7 @@ Function Update-Myself {
 ### SCRIPT BODY ###
 #Run the config .ps1 to set the variables
 . .\$ConfigFile
+cd $workingDir
 
 
 ### SELF UPDATER SECTION ###
@@ -772,6 +775,7 @@ $scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/mas
 
 UpdatesAvailable
 Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
+$SourcePath = "$($updateDirectoryName)\$($updatedVersionName)"
 ### END OF SELF UPDATER SECTION ###
 
 
