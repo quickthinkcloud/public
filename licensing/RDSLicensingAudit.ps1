@@ -765,10 +765,10 @@ Function Update-Myself {
 
 ### SELF UPDATER SECTION ###
 #SCRIPT ADMIN VARIABLES!
-$scriptName = "RESLicensingAudit.ps1"
+$scriptName = "RDSLicensingAudit.ps1"
 $updateDirectoryName = "RDSLUAUpdates"
 $updatedVersionName = "RDSLUA_latest.ps1"
-$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RESLicensingAudit.ps1"
+$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
 
 UpdatesAvailable
 Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
