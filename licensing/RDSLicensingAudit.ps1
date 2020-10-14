@@ -1,19 +1,14 @@
 ﻿### ABOUT AND INITIAL SETUP INFO/SCRIPTS ### 
-# 20180301
 <#
 Author: Chris Phillips, for QuickThink Cloud Limited
 Date: 20/12/2016
 Version: 1.0
 PURPOSE:  This script is monitoring group(s) in AD and send an email when someone is added or removed
 
-REQUIRES: ActiveDirectory Module or Quest AD Snapin
+REQUIRES: ActiveDirectory Module
 
 VERSION HISTORY
-1.0 2013.06.08: Initial Version created from reference TOOL-Monitor-AD_DomainAdmins_EnterpriseAdmins.ps1 / Francois-Xavier CAT. 
-                 This version using the activedirectory module rather than the quest tool.
-OTHER NOTES
-Exporting SecureString from Get-Credential
-(Get-Credential).Password | ConvertFrom-SecureString | Out-File "Password.txt"
+Initial Version created from reference TOOL-Monitor-AD_DomainAdmins_EnterpriseAdmins.ps1 / Francois-Xavier CAT. 
 
 ### Initial Setup Script ###
 # Creating PSCredential object
@@ -22,27 +17,6 @@ $trustedDom1Server = $trustedDom1 # set to an IP i.e."1.2.3.1" # use only if exp
 $User = "AD-NNHS\SVC-AgressoCloud"
 $File = "$($trustedDom1)_pw.txt"
 (Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom2 = "CB-INT.net"
-$trustedDom2Server = $trustedDom2 # set to an IP i.e."1.2.3.2" # use only if explicitely required, else set this = $trustedDom2
-$User = "CB-INT\service-qtc"
-$File = "$($trustedDom2)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom3 = "ME.cyrilsweett.com"
-$trustedDom3Server = $trustedDom3 # set to an IP i.e."1.2.3.3" # use only if explicitely required, else set this = $trustedDom3
-$User = "ME\service-qtc-me"
-$File = "$($trustedDom3)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
-
-# Creating PSCredential object
-$trustedDom4 = "EU.cyrilsweett.com"
-$trustedDom4Server = $trustedDom4 # set to an IP i.e."1.2.3.4" # use only if explicitely required, else set this = $trustedDom4
-$User = "EU\QTCAdmin"
-$File = "$($trustedDom4)_pw.txt"
-(Get-Credential $User).Password | ConvertFrom-SecureString | Out-File $File
 #>
 
 ### PARAMETERS (must be the first section of the script!)### 
@@ -50,15 +24,10 @@ param (
     $ConfigFile = $(throw "You must specify a config file")
     #Working parameters
     #[parameter(Mandatory=$true,HelpMessage="You must enter a string")]$aString
-    
-    #Unknown if Working or not parameters
-    #[parameter(Mandatory=$true,throw="You must enter a config file path")]$ConfigFile
-    #[parameter(Mandatory=$true,HelpMessage="You must specify a config file")]$ConfigFile = $(throw "You must specify a config file")
-    #[parameter(Mandatory=$true,HelpMessage="Path to log file")]$LogPath
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20190502
+$scriptVersion = 20201014
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -67,8 +36,7 @@ Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudi
 # Monitor the following domain and groups
 $customerName = "CustomerName"
 #$workingDir = "C:\Users\$($env:USERNAME)\"
-$GroupName = @("RDS_Users","RDS_Excelerator")
- 
+$GroupName = @("RDS_Users","RDS_Excel","RDS_Word")
 <# Creating PSCredential object
 $trustedDom1 = "TrustedDom1.com"
 $trustedDom1Server = $trustedDom1 # set to an IP i.e."1.2.3.1" # use only if explicitely required, else set this = $trustedDom1
@@ -97,21 +65,8 @@ $User = "TrustedDom4\QTCAdmin"
 $File = "$($trustedDom4)_pw.txt"
 $DomCreds4=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
 #>
-
 $numTrustedDomains = 0
 
-
-#Run the config .ps1 to set the variables
-. .\$ConfigFile
-
-## ADMIN/SRIPT WRITER VARIABLES ##
-# Dropping out of powershell to grab the hostname
-#$scripthost = Invoke-Command -ScriptBlock {hostname}
-
-### Parameters ###
-<#Param(
-#[parameter(Mandatory=$true,HelpMessage="Path to log file")]$LogPath
-)#>
 
 ### FUNCTIONS ###
 Function Convert-FspToUsername 
@@ -251,19 +206,43 @@ Function RecursivelyEnumerateGroupObjects {
      }#>
       
     #For each USER member of the group
-    foreach($grp in $currentGroup.Members) {
+foreach($grp in $currentGroup.Members) {
         #Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *
         $currentObj = Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * #| select *
+ 
+        #"currentObj"
+        #$currentObj
+        #"end of currentObj"
+        #$currentObjSID.accountdomainsid
+        #pause
         
-        # Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *
-        # Write-Host "SamAccountname $($currentObj.sAMAccountName)"
-        # pause
-
         $currentObjSID = $currentObj.objectSid
         $currentObjClass = $currentObj.ObjectClass
         $currentObjName = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
-        
-        #if($currentObjClass.ToString() = "user") {
+ 
+        "currentObjSID = $($currentObjSID)"
+        "currentObjClass = $($currentObjClass)"
+        "currentObjName = $($currentObjName)"
+
+        #write-host "$($currentObjSID) $($currentObjClass) $($currentObjName)"
+        #$grp
+
+        #String Splitting:
+        $tempString = $currentObjName.sAMAccountName
+        #Write-Host "sAMAccountName: $($tempString)"
+        #$tempLength = $tempString.Length
+        #$tempLength
+        $tempSlash = $tempString.IndexOf("\")
+        #$tempSlash
+        TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}Catch{}
+        #$tempDomain 
+        $tempGroup = $tempString.Substring($tempSlash+1)
+        #$tempGroup 
+ 
+        #Write-Host "TempDomain = $tempDomain and TempGroup = $tempGroup and currentObjClass $($currentObjClass.ToString())"
+        #Start-Sleep -s 60
+ 
+        #if($currentObjClass.ToString() = "foreignSecurityPrincipal") {
         switch ($currentObjClass.ToString())
         {
         #"foreignSecurityPrincipal" {$currentObjName}
@@ -286,551 +265,172 @@ Function RecursivelyEnumerateGroupObjects {
                 #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
                 $global:arrGroupsWithinDomains += $currentAdObject
                 #write-host "end of user"    
-                }#End of "user"
+                }#End if
         
-            } # end if($varMyLocalADUser.Enabled -eq $True)
-        } #End of switch
-    } #End of foreach($grp of $currentGroup.Members)
-    
-
-    #For each GROUP within the group
-    foreach($grp in $currentGroup.Members) {
-        #Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *       
-        $currentObj = Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * #| select *
-        
-        $currentObjSID = $currentObj.objectSid
-        $currentObjClass = $currentObj.ObjectClass
-        $currentObjName = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
-        
-        #if($currentObjClass.ToString() = "group") {
-        switch ($currentObjClass.ToString())
-        {
-        #"foreignSecurityPrincipal" {$currentObjName}
-        #"user" {$currentObj.Name}
+            } # end user
         "group" {
             write-host "Group..." -ForegroundColor Cyan
-            <#
-            #$a = $currentObj.Name
-            #$b = $global:newParentObject
-            #$a = $a.Trim()
-            #$b = $b.Trim()
-            #$a
-            #$b
-#>
-            <#
-            write-host "GROUP" -ForegroundColor Yellow
-            $currentObj
-            write-host "END GROUP" -ForegroundColor Yellow
-            $currentObj.Name
-
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
- 
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.Name -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.ObjectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-
-            #>
             RecursivelyEnumerateGroupObjects($currentObj.Name)
-            #RecursivelyEnumerateGroupObjects("$($a)$($b)")
-      
-            ## Create a new instance of a .Net object
-            #$currentAdObject = New-Object System.Object
-            #
-            ## Add user-defined customs members: the records retrieved with the three PowerShell commands
-            #$currentAdObject  | Add-Member -MemberType NoteProperty -Value "LocalDomainStaticString" -Name Domain #The Domain that hosts this object
-            #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.Name -Name ObjectName #The object Name i.e. name of a group
-            #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
-            #$currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
-            #$arrGroupsWithinDomains += $currentAdObject
-            #write-host "End of group"
             } #End of "group"
-        }#End of switch
- #pause  
-    } #End of foreach($grp of $currentGroup.Members)
-    
+        "foreignSecurityPrincipal" {
 
-    #For each FSP within the group
-    foreach($grp in $currentGroup.Members) {
-        #Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *
-        $currentObj = Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * #| select *
-        
-        $currentObjSID = $currentObj.objectSid
-        $currentObjClass = $currentObj.ObjectClass
-        $currentObjName = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
- 
-        #write-host "$($currentObjSID) $($currentObjClass) $($currentObjName)"
-        #$grp
 
-        #String Splitting:
-        $tempString = $currentObjName.sAMAccountName
-#Write-Host "sAMAccountName: $($tempString)"
-        #$tempLength = $tempString.Length
-        #$tempLength
-        $tempSlash = $tempString.IndexOf("\")
-        #$tempSlash
-        TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}Catch{}
-        #$tempDomain 
-        $tempGroup = $tempString.Substring($tempSlash+1)
-        #$tempGroup 
- 
-        #Write-Host "TempDomain = $tempDomain and TempGroup = $tempGroup and currentObjClass $($currentObjClass.ToString())"
-        #Start-Sleep -s 60
- 
-        #if($currentObjClass.ToString() = "foreignSecurityPrincipal") {
-        switch ($currentObjClass.ToString())
-        {
-            "foreignSecurityPrincipal" {
-               write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
-               # $currentObjName
-   
-                #get-adobject -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds | sort samaccountname | select samaccountname,objectClass, distinguishedname #,*
-                #Start-Sleep -s 5
- 
-                #Write-host "You triggered me" -ForegroundColor Yellow
-                #$grpName = "RESGROUP - Excel2007"
+                #"currentObj"
+                #$currentObj
+                #"end of currentObj"
+                #$currentObjSID.accountdomainsid
+                #pause
+
+
+                       
+                write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
                 $grpName = $tempGroup
                 
-                <#
-                write-host "What is it?" -ForegroundColor Yellow
-                $grpName
-                $tempGroup
-                $tempDomain
-                $currentObj
-                $currentObjSID
-                $currentObjClass
-                $currentObjName
- 
+
+                $discoveredDomainOfADDomain = $tempDomain #"EU"
+                $discoveredDomainOfADObject = $grpName #"QTCAdmin"
                 
-                write-host "EU here" -ForegroundColor Yellow
-                if ((Get-ADuser -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds | Select SamAccountName) -eq $grpName) {
-                    write-host "We have an EU username match" -ForegroundColor Yellow
-                    pause
-                } Else {
-                    pause
-                    write-host "We DO NOT have an EU username match" -ForegroundColor green
-                    write-host "ME here" -ForegroundColor Yellow
-                    pause
-                    if ((Get-ADuser -Identity $grpName -Server me.cyrilsweett.com -Credential $DomCredsME | Select SamAccountName) -eq $grpName) {
-                        pause
-                        write-host "We have an ME username match" -ForegroundColor Yellow
-                        pause
-                    } Else {
-                    pause
-                        write-host "We DO NOT have an ME username match" -ForegroundColor green
-                        pause
- 
-                    }
-                }
-                #>
-
-#write-host "notInDomainCounter: $($notInDomainCounter) (initialised) - grpName: $($grpName) - tempGroup: $($tempGroup) - tempString: $($tempString) - currentObjName: $($currentObjName) - grp: $($grp)" -ForegroundColor Yellow
-$notInDomainCounter=1
-#write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: Local" -ForegroundColor Yellow
-                #Try {get-AdGroupMember -Identity $grpName -ErrorAction Stop -Recursive | sort samaccountname | select samaccountname,objectClass}
-                #Catch {
-                #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname #,*
-#trustedDom1
-Try {
-    #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-    Try { #If it's a user...
-    $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom1Server -Credential $DomCreds1 -properties *  | sort samaccountname | select samaccountname, objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-    }
-    Catch { #if it's not a user...
-        #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
-        $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom1 -Credential $DomCreds1 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        }
-    } #End Catch
-}
-Catch {
-    #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1)" -ForegroundColor Yellow
-    $notInDomainCounter = 2
-    <#
-    #$fspMembers = Get-AdGroupMember -Identity $grpName -Server me.cyrilsweett.com -Credential $DomCredsME -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-    Try { #If it's a user...
-        $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom2 -Credential $DomCreds2 | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-    }
-    Catch { #if it's not a user...
-        $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom2 -Credential $DomCreds2 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        } #End ForEach ($fspMem in $fspMembers)
-    } #End Catch
-    #>
-} #End Catch
-<#
-Finally {
-    #$fspMembers = Get-AdGroupMember -Identity $grpName -Server me.cyrilsweett.com -Credential $DomCredsME -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-    Try { #If it's a user...
-        $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom3 -Credential $DomCreds3 | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-    }
-    Catch { #if it's not a user...
-        $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom3 -Credential $DomCreds3 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        } #End ForEach ($fspMem in $fspMembers)
-    } #End Catch
-} #End Finally
-#>
-
-if ($numTrustedDomains > 1) {
-#trustedDom2
-If ($notInDomainCounter = 2) {
-    Try {
-        #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-        Try { #If it's a user...
-        $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom2Server -Credential $DomCreds2 | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        }
-        Catch { #if it's not a user...
-            #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom2) - Not a user." -ForegroundColor Yellow
-            $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom2 -Credential $DomCreds2 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        } #End Catch
-    }
-    Catch {
-        #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom2)" -ForegroundColor Yellow
-        $notInDomainCounter = 3
-    } #End Catch
-}
-}
-if ($numTrustedDomains > 2) {
-#trustedDom3
-If ($notInDomainCounter = 3) {
-    Try {
-        Try { #If it's a user...
-        $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom3Server -Credential $DomCreds3 | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        }
-        Catch { #if it's not a user...
-            #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom3) - Not a user." -ForegroundColor Yellow
-            $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom3 -Credential $DomCreds3 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        } #End Catch
-    }
-    Catch {
-        #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom3)" -ForegroundColor Yellow
-        $notInDomainCounter = 4
-    } #End Catch
-}
-}
-if ($numTrustedDomains > 3) {
-#trustedDom4
-If ($notInDomainCounter = 4) {
-    Try {
-        Try { #If it's a user...
-        $fspMembers = Get-ADUser -Identity $grpName -Server $trustedDom4Server -Credential $DomCreds4 | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-	        #$fspMem | fl
-	        #String Splitting:
-	        $tempString = $currentObjName.sAMAccountName
-	        #$tempLength = $tempString.Length
-	        #$tempLength
-	        $tempSlash = $tempString.IndexOf("\")
-	        #$tempSlash
-	        $tempDomain = $tempString.Substring(0,$tempSlash)
-	        #$tempDomain 
-	        $tempGroup = $tempString.Substring($tempSlash+1)
-	        #$tempGroup 
-	        # Create a new instance of a .Net object
-	        $currentAdObject = New-Object System.Object
-	        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	        $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        }
-        Catch { #if it's not a user...
-            #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom4) - Not a user." -ForegroundColor Yellow
-            $fspMembers = Get-AdGroupMember -Identity $grpName -Server $trustedDom4 -Credential $DomCreds4 -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-            ForEach ($fspMem in $fspMembers) { 
-            #$fspMem | fl
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #$tempLength = $tempString.Length
-            #$tempLength
-            $tempSlash = $tempString.IndexOf("\")
-            #$tempSlash
-            $tempDomain = $tempString.Substring(0,$tempSlash)
-            #$tempDomain 
-            $tempGroup = $tempString.Substring($tempSlash+1)
-            #$tempGroup 
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject
-        }
-        } #End Catch
-    }
-    Catch {
-        #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom4)" -ForegroundColor Yellow
-        $notInDomainCounter = 5
-    } #End Catch
-}
-}
-if ($numTrustedDomains > 4) {
-    If ($notInDomainCounter = 5) {
-        #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - No Domains left to try!" -ForegroundColor Red
-    }
-}
+                #$discoveredDomainOfADDomain
+                #$discoveredDomainOfADObject
+                #pause
+                foreach ($rec in $arrTrustedDomainsFromCSV ) {
+                    If ($rec.NetBIOS -eq $discoveredDomainOfADDomain) {
 
 
-ForEach ($fspMem in $fspMembers) { 
-    #$fspMem | fl
+                        $DomCreds = Get-Variable -Name "trustedDom$($rec.ID)Creds" -ValueOnly
+    
+                        #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                        Try { #If it's a user...
+                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                            ForEach ($fspMem in $fspMembers) { 
+	                            #$fspMem | fl
+	                            #String Splitting:
+	                            $tempString = $currentObjName.sAMAccountName
+	                            #$tempLength = $tempString.Length
+	                            #$tempLength
+	                            $tempSlash = $tempString.IndexOf("\")
+	                            #$tempSlash
+	                            $tempDomain = $tempString.Substring(0,$tempSlash)
+	                            #$tempDomain 
+	                            $tempGroup = $tempString.Substring($tempSlash+1)
+	                            #$tempGroup 
+	                            # Create a new instance of a .Net object
+	                            $currentAdObject = New-Object System.Object
+	                            # Add user-defined customs members: the records retrieved with the three PowerShell commands
+	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
+	                            $global:arrGroupsWithinDomains += $currentAdObject
+                            }
+                        }
+                        Catch { #if it's not a user...
+                            
+                            Try {
+
+                                #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
+                                $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                                #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                                ForEach ($fspMem in $fspMembers) { 
+                                    #$fspMem | fl
+                                    #String Splitting:
+                                    $tempString = $currentObjName.sAMAccountName
+                                    #$tempLength = $tempString.Length
+                                    #$tempLength
+                                    $tempSlash = $tempString.IndexOf("\")
+                                    #$tempSlash
+                                    $tempDomain = $tempString.Substring(0,$tempSlash)
+                                    #$tempDomain 
+                                    $tempGroup = $tempString.Substring($tempSlash+1)
+                                    #$tempGroup 
+                                    # Create a new instance of a .Net object
+                                    $currentAdObject = New-Object System.Object
+                                    # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
+                                    $global:arrGroupsWithinDomains += $currentAdObject
+                                }
+
+                            }
+                            Catch {
+                                "currentObj"
+                                $currentObj
+                                "end of currentObj"
+
+                                $tempDomain
+                                $tempGroup
+                                $grpName
+                                $currentObjSID
+                                $currentObjClass
+                                $currentObjName
+                                $discoveredDomainOfADDomain
+                                $discoveredDomainOfADObject
+
+                                #"this2"
+                                #$currentObj.DistinguisedName
+                                #$currentObj.objectSid
+                                #"this3"
+                                #pause
+                                #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
+                                Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
+                                #pause
+                            }
+                            
+
+                        } #End Catch
+
+                        #$currentAdObject
+                        #pause
+
+                    } else {
+                        #"this is the place where you are 657436157316873168431871"
+                        #pause
+                    } #End if
+                } #End foreach
+
+
+
+
+    
+
+
+
+                <#
+                ForEach ($fspMem in $fspMembers) { 
+                    #$fspMem | fl
   
-    #String Splitting:
-    $tempString = $currentObjName.sAMAccountName
-    #$tempLength = $tempString.Length
-    #$tempLength
-    $tempSlash = $tempString.IndexOf("\")
-    #$tempSlash
-    TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}CATCH{}
-    #$tempDomain 
-    $tempGroup = $tempString.Substring($tempSlash+1)
-    #$tempGroup 
+                    #String Splitting:
+                    $tempString = $currentObjName.sAMAccountName
+                    #$tempLength = $tempString.Length
+                    #$tempLength
+                    $tempSlash = $tempString.IndexOf("\")
+                    #$tempSlash
+                    TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}CATCH{}
+                    #$tempDomain 
+                    $tempGroup = $tempString.Substring($tempSlash+1)
+                    #$tempGroup 
   
-    # Create a new instance of a .Net object
-    $currentAdObject = New-Object System.Object
+                    # Create a new instance of a .Net object
+                    $currentAdObject = New-Object System.Object
  
-    # Add user-defined customs members: the records retrieved with the three PowerShell commands
-    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-    $global:arrGroupsWithinDomains += $currentAdObject
-} #End ForEach ($fspMem in $fspMembers)
-                               
-                    <#
-					# Create a new instance of a .Net object
-					$currentAdObject = New-Object System.Object
-	 
-					# Add user-defined customs members: the records retrieved with the three PowerShell commands
-					$currentAdObject  | Add-Member -MemberType NoteProperty -Value "LocalDomainStaticString" -Name Domain #The Domain that hosts this object
-					$currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ObjectName #The object Name i.e. name of a group
-					$currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
-					$currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
-					$global:arrGroupsWithinDomains += $currentAdObject
-					#>        
-#write-host "End of foreignSecurityPrincipal"
-} #end "foreignSecurityPrincipal"
-<#
-            #"user" {$currentObj.Name}
-            #group" {RecursivelyEnumerateGroupObjects($currentObj.Name)}
-#>
-        }#End of switch
-<#
-        #$FSPStrings = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
-        #$FSPStrings
-#> 
+                    # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
+                    $global:arrGroupsWithinDomains += $currentAdObject
+                } #End ForEach ($fspMem in $fspMembers)
+                #>                               
+
+            } #end "foreignSecurityPrincipal"
+
+        } #End switch
     } #End of foreach($grp of $currentGroup.Members)
+
 } #End Function RecursivelyEnumerateGroupObjects
 Function Get-LocalDomainNETBIOSName {
     #Get local domain NETBIOS name
@@ -919,10 +519,6 @@ Function Main {
     $qtcUserArray = "chris.phillips","david.barrett","ian.witts","luke.kinson","Test","Test001"
     Write-Host "Group: $grpName" -ForegroundColor Green
  
-    #Obtain Creds for Remote domain
-    #$DomCreds = Get-Credential CB\QTC-user
-    #$DomCreds = $MyCredential
- 
     #Get local domain NETBIOS name
     $localDomain = Get-ADDomain | select NetBIOSname
     $localDomain.NetBIOSname
@@ -932,29 +528,6 @@ Function Main {
     #$trustedDomains.Flatname
     #$trustedDomains.name
     
-    #For Each trusted domain
-    $trustedDomains | ForEach-Object {
-        
-        write-host "$($_.Flatname)"
-        write-host "$($_.name)"
-        
-        # 1. Check if an domainNameFlatName.txt file exists (this should contain username and encrypted password - if not - prompt user to enter the creds (and offer to store the encrypted file)
-        If (Test-Path  "$($_.Flatname).txt") {
-            #Success, File exists
-        } Else {
-            #Failure, create file with creds (username, encrypted_password)
-            Write-Host "File doesn't exist"
-            # New-Item "$($_.Flatname).txt" -type file        
-        }
-        
-        # 2. Check if the creds in the file from step 1 work - if failure - prompt user to enter the creds (and offer to store the encrypted file), then retest (loop).             
-        # 2.1 Can you and check whos in "trustedDomain\Domain Users"?
-        
-        
- 
-        write-host ""
-    }#Foreach ($trustedDomain in $trustedDomains.FlatName)
- 
     #Initialise Array
     $global:arrGroupsWithinDomains = @()
  
@@ -973,13 +546,10 @@ Function Main {
     Write-Host "Output" -ForegroundColor Yellow
  
     #Output
-    #cls
     #$arrGroupsWithinDomains
- 
-    #$arrGroupsWithinDomainsUnique 
+    #$arrGroupsWithinDomainsUnique 
     #$arrGroupsWithinDomainsUniqueNoComps
     #$arrGroupsWithinDomainsUniqueUsersONLY
- 
     #$arrGroupsWithinDomainsUniqueMinusParent
     #$arrGroupsWithinDomainsUniqueNoCompsMinusParent
     #$arrGroupsWithinDomainsUniqueUsersONLYMinusParent
@@ -1061,8 +631,6 @@ ForEach ($a in $inputDataSet) {
  
     #$arrLowerUniqueMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueMinusParent.csv"
     #$arrLowerUniqueNoCompsMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueNoCompsMinusParent.csv"
-    #$customerName = "SHA"
-    #$initialGroup = "RDS_USERS"
     $ExportCSVfilename = "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueUsersONLYMinusParent.csv"
     $arrLowerUniqueUsersONLYMinusParent | Export-Csv $ExportCSVfilename 
     $ExportCSVfilename
@@ -1072,25 +640,168 @@ ForEach ($a in $inputDataSet) {
 . .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
  
 } #End Main
- 
+Function Test-Cred {
+           
+    [CmdletBinding()]
+    [OutputType([String])] 
+       
+    Param ( 
+        [Parameter( 
+            Mandatory = $false, 
+            ValueFromPipeLine = $true, 
+            ValueFromPipelineByPropertyName = $true
+        )] 
+        [Alias( 
+            'PSCredential'
+        )] 
+        [ValidateNotNull()] 
+        [System.Management.Automation.PSCredential]
+        [System.Management.Automation.Credential()] 
+        $Credentials
+    )
+    $Domain = $null
+    $Root = $null
+    $Username = $null
+    $Password = $null
+      
+    If($Credentials -eq $null)
+    {
+        Try
+        {
+            $Credentials = Get-Credential "domain\$env:username" -ErrorAction Stop
+        }
+        Catch
+        {
+            $ErrorMsg = $_.Exception.Message
+            Write-Warning "Failed to validate credentials: $ErrorMsg "
+            Pause
+            Break
+        }
+    }
+      
+    # Checking module
+    Try
+    {
+        # Split username and password
+        $Username = $credentials.username
+        $Password = $credentials.GetNetworkCredential().password
+  
+        # Get Domain
+        $Root = "LDAP://" + ([ADSI]'').distinguishedName
+        $Domain = New-Object System.DirectoryServices.DirectoryEntry($Root,$UserName,$Password)
+    }
+    Catch
+    {
+        $_.Exception.Message
+        Continue
+    }
+  
+    If(!$domain)
+    {
+        Write-Warning "Something went wrong"
+    }
+    Else
+    {
+        If ($domain.name -ne $null)
+        {
+            return "Authenticated"
+        }
+        Else
+        {
+            return "Not authenticated"
+        }
+    }
+}
 
 
 ### SCRIPT BODY ###
+#Run the config .ps1 to set the variables
+. .\$ConfigFile
+
 cd $workingDir
+
+# Get Domain Trusts
+$domTrusts = Get-ADTrust -Filter {Direction -eq "Outbound"} -Properties * #Get-ADTrust -Filter *
+$domTrustsCount = ($domtrusts.Name).count
+write-host "Number of domain trusts: $($domTrustsCount)" -ForegroundColor Yellow
+
+
+#Check for/create a DTInfo file
+$filename = "DTInfo.csv"
+ if (Test-Path $filename ) {
+        "$($filename) exists"
+    } else {
+        "ID,NetBIOS,FQDN,User,EncryptedPassword,DomainSID" | Out-File $filename
+    } # end if
+
+
+#Number of lines in the file
+$rowsInDTInfo = get-content $filename | Measure-Object -Line
+#$rowsInDTInfo 
+
+
+#Check if there are enough lines for domain trusts
+if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
+    "There are not enough lines for each domain trust, there are $($domTrustsCount) trusts but only $($rowsInDTInfo.lines-1) within the DTInfo File"
+    "ID,NetBIOS,FQDN,User,EncryptedPassword,DomainSID" | Out-File $filename
+        
+    $i = 1
+    foreach ($trust in $domTrusts) {
+        Write-Host $trust.Name
+        Write-Host $trust.FlatName
+
+        $User = Read-Host -Prompt "Input the user name for the $($trust.Flatname) domain"
+        $PassAsEncryptedString = (Get-Credential "$($trust.Flatname)\$User").Password | ConvertFrom-SecureString
+        $string = "$($i),$($trust.flatname),$($trust.name),$($trust.flatname)\$($User),$($PassAsEncryptedString),$($trust.securityIdentifier)" | Out-File $filename -Append
+        
+
+        $i++
+    } # End foreach
+
+} # End If
+
+
+#Read and test the creds
+$arrTrustedDomainsFromCSV = Import-Csv $filename
+
+$i=1
+foreach ($rec in $arrTrustedDomainsFromCSV) {
+    $currNETBIOS = $arrTrustedDomainsFromCSV | where ID -eq $i | select NetBIOS
+    Get-Variable -Name "trustedDom$($i)NETBOIS" -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
+    New-Variable -Name "trustedDom$($i)NETBOIS" -Value $currNETBIOS.NetBIOS
+    
+    $currFQDN = $arrTrustedDomainsFromCSV | where ID -eq $i | select FQDN
+    Get-Variable -Name "trustedDom$i" -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
+    New-Variable -Name "trustedDom$i" -Value $currFQDN.FQDN
+
+    $User = $arrTrustedDomainsFromCSV | where ID -eq $i | select User
+    $Password = $arrTrustedDomainsFromCSV | where ID -eq $i | select EncryptedPassword
+    $DomCreds=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User.User, ($Password.EncryptedPassword | ConvertTo-SecureString)
+
+    Get-Variable -Name "trustedDom$($i)Creds" -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
+    New-Variable -Name "trustedDom$($i)Creds" -Value $DomCreds
+
+    $currDSID = $arrTrustedDomainsFromCSV | where ID -eq $i | select DomainSID
+    Get-Variable -Name "trustedDom$($i)DomainSID" -ErrorAction SilentlyContinue | Remove-Variable -ErrorAction SilentlyContinue
+    New-Variable -Name "trustedDom$($i)DomainSID" -Value $currDSID.DomainSID
+    
+
+    #Test the Creds
+    $result = Test-Cred $DomCreds
+    if ($result -eq "Not Authenticated") {
+        Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
+        Remove-Item $filename
+        pause
+    } else {
+        Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
+    } #End if
+
+    Remove-Variable DomCreds
+    $i++
+} #End foreach
+
 
 Foreach ($initialGroup in $GroupName) {
     Main($initialGroup) #| Add-Content C:\temp\outputusers.csv    
-    # pause
 }
-
-Write-Host "Number of trusted domains: $($numTrustedDomains)" -ForegroundColor Yellow
-
-<#cls
-$initialGroup = "RDS_USERS"
-
- 
-pause
-write-host ""
-$initialGroup = "RDS_Excelerator"
-Main($initialGroup) #| Add-Content C:\temp\outputusers.csv
-#>
+Write-Host "Number of trusted domains: $($domTrustsCount)" -ForegroundColor Yellow
