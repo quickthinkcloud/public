@@ -809,7 +809,7 @@ if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
     if (!($proceedDecision = Read-Host "Do you want to proceed? [$proceedDefault]")) { $User = $proceedDefault }
     
     #Reset the DTInfor File
-    $proceedDecision = 1
+    #$proceedDecision = 1
     If ($proceedDecision = 0) {
 
         "ID,NetBIOS,FQDN,Server,User,EncryptedPassword,DomainSID" | Out-File $filename
