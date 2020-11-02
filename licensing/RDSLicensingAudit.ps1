@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201102.4
+$scriptVersion = 20201102.5
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -793,6 +793,32 @@ $filename = "DTInfo.csv"
         "$($filename) exists"
     } else {
         "ID,NetBIOS,FQDN,Server,User,EncryptedPassword,DomainSID" | Out-File $filename
+
+        $i = 1
+        foreach ($trust in $domTrusts) {
+            Write-Host $trust.Name
+            Write-Host $trust.FlatName
+
+            $discoveredTrustName = $trust.Name
+            if (!($thisTrustName = Read-Host "Domain Name [$discoveredTrustName]")) { $thisTrustName = $discoveredTrustName }
+
+            $discoveredTrustFlatName = $trust.FlatName
+            if (!($thisTrustFlatName = Read-Host "Domain NetBIOS Name [$discoveredTrustFlatName]")) { $thisTrustFlatName = $discoveredTrustFlatName }
+
+            $discoveredTrustServer = "$($thisTrustName)"
+            if (!($thisTrustServer = Read-Host "Server To Use [$discoveredTrustServer]")) { $thisTrustServer = $discoveredTrustServer }
+
+            $preSetDefaultDomainUsername = "QTCAdmin"
+            if (!($User = Read-Host "Username [$preSetDefaultDomainUsername] for the $($trust.Flatname) domain")) { $User = $preSetDefaultDomainUsername }
+
+            #$User = Read-Host -Prompt "Input the user name for the $($trust.Flatname) domain"
+            $PassAsEncryptedString = (Get-Credential "$($trust.Flatname)\$User").Password | ConvertFrom-SecureString
+            $string = "$($i),$($thisTrustFlatName),$($thisTrustName),$($discoveredTrustServer),$($thisTrustFlatName)\$($User),$($PassAsEncryptedString),$($trust.securityIdentifier)" | Out-File $filename -Append
+        
+            $i++
+        } #End foreach
+
+
     } # end if
 
 
