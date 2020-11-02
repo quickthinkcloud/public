@@ -805,7 +805,7 @@ $rowsInDTInfo = get-content $filename | Measure-Object -Line
 if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
     "There are not enough lines for each domain trust, there are $($domTrustsCount) trusts but only $($rowsInDTInfo.lines-1) within the DTInfo File"
 
-    $proceedDefault = "0"
+    $proceedDefault = 0
     if (!($proceedDecision = Read-Host "Do you want to proceed? [$proceedDefault]")) { $User = $proceedDefault }
     
     #Reset the DTInfor File
