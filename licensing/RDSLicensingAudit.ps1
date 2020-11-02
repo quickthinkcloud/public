@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201014
+$scriptVersion = 20201102
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -792,7 +792,7 @@ $filename = "DTInfo.csv"
  if (Test-Path $filename ) {
         "$($filename) exists"
     } else {
-        "ID,NetBIOS,FQDN,User,EncryptedPassword,DomainSID" | Out-File $filename
+        "ID,NetBIOS,FQDN,Server,User,EncryptedPassword,DomainSID" | Out-File $filename
     } # end if
 
 
@@ -804,19 +804,40 @@ $rowsInDTInfo = get-content $filename | Measure-Object -Line
 #Check if there are enough lines for domain trusts
 if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
     "There are not enough lines for each domain trust, there are $($domTrustsCount) trusts but only $($rowsInDTInfo.lines-1) within the DTInfo File"
-    "ID,NetBIOS,FQDN,User,EncryptedPassword,DomainSID" | Out-File $filename
-        
-    $i = 1
-    foreach ($trust in $domTrusts) {
-        Write-Host $trust.Name
-        Write-Host $trust.FlatName
 
-        $User = Read-Host -Prompt "Input the user name for the $($trust.Flatname) domain"
-        $PassAsEncryptedString = (Get-Credential "$($trust.Flatname)\$User").Password | ConvertFrom-SecureString
-        $string = "$($i),$($trust.flatname),$($trust.name),$($trust.flatname)\$($User),$($PassAsEncryptedString),$($trust.securityIdentifier)" | Out-File $filename -Append
+    $proceedDefault = "0"
+    if (!($proceedDecision = Read-Host "Do you want to proceed? [$proceedDefault]")) { $User = $proceedDefault }
+    
+    #Reset the DTInfor File
+    $proceedDecision = 1
+    If ($proceedDecision = 0) {
+
+        "ID,NetBIOS,FQDN,Server,User,EncryptedPassword,DomainSID" | Out-File $filename
+        
+        $i = 1
+        foreach ($trust in $domTrusts) {
+            Write-Host $trust.Name
+            Write-Host $trust.FlatName
+
+            $discoveredTrustName = $trust.Name
+            if (!($thisTrustName = Read-Host "Domain Name [$discoveredTrustName]")) { $thisTrustName = $discoveredTrustName }
+
+            $discoveredTrustFlatName = $trust.FlatName
+            if (!($thisTrustFlatName = Read-Host "Domain NetBIOS Name [$discoveredTrustFlatName]")) { $thisTrustFlatName = $discoveredTrustFlatName }
+
+            $discoveredTrustServer = "$($thisTrustName)"
+            if (!($thisTrustServer = Read-Host "Server To Use [$discoveredTrustServer]")) { $thisTrustServer = $discoveredTrustServer }
+
+            $preSetDefaultDomainUsername = "QTCAdmin"
+            if (!($User = Read-Host "Username [$preSetDefaultDomainUsername] for the $($trust.Flatname) domain")) { $User = $preSetDefaultDomainUsername }
+
+            #$User = Read-Host -Prompt "Input the user name for the $($trust.Flatname) domain"
+            $PassAsEncryptedString = (Get-Credential "$($trust.Flatname)\$User").Password | ConvertFrom-SecureString
+            $string = "$($i),$($thisTrustFlatName),$($thisTrustName),$($discoveredTrustServer),$($thisTrustFlatName)\$($User),$($PassAsEncryptedString),$($trust.securityIdentifier)" | Out-File $filename -Append
         
 
-        $i++
+            $i++
+        } #End If
     } # End foreach
 
 } # End If
@@ -851,6 +872,7 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
     $result = Test-Cred $DomCreds
     if ($result -eq "Not Authenticated") {
         Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
+        Copy-Item -Path $filename -Destination "$($filename)_OLD"
         Remove-Item $filename
         pause
     } else {
