@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201102.3
+$scriptVersion = 20201102.4
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -806,10 +806,10 @@ if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
     "There are not enough lines for each domain trust, there are $($domTrustsCount) trusts but only $($rowsInDTInfo.lines-1) within the DTInfo File"
 
     $proceedDefault = "0"
-    if (!($proceedDecision = Read-Host "Do you want to proceed? [$proceedDefault]")) { $User = $proceedDefault }
+    $proceedDecision = 1
+    #if (!($proceedDecision = Read-Host "Do you want to proceed? [$proceedDefault]")) { $User = $proceedDefault }
     
     #Reset the DTInfor File
-    $proceedDecision = 1
     If ($proceedDecision = 0) {
 
         "ID,NetBIOS,FQDN,Server,User,EncryptedPassword,DomainSID" | Out-File $filename
@@ -837,8 +837,8 @@ if ($rowsInDTInfo.Lines-1 -ne $domTrustsCount) {
         
 
             $i++
-        } #End If
-    } # End foreach
+        } #End foreach
+    } # End if
 
 } # End If
 
