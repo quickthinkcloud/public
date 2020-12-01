@@ -3,8 +3,8 @@ inetcpl.cpl
 $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
-New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
-New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorAction SilentlyContinue 
+New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "AKIAJXMF3GE4CVZALHWA" -ErrorAction SilentlyContinue 
+New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "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" -ErrorAction SilentlyContinue 
 START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/Base_Server_2016.ps1
 #>
 
@@ -127,7 +127,7 @@ If ($useAWSRepository -eq $true) {
 
     #AWS Parameters
     $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-                                            If (!(Test-RegistryValue -Path $winLogonKey -Value 'AWSAccessKey')) {
+    If (!(Test-RegistryValue -Path $winLogonKey -Value 'AWSAccessKey')) {
     $awsAccessKey = Read-Host -Prompt "Input your AWS Access Key:" 
     New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "$($awsAccessKey)" -ErrorAction SilentlyContinue 
     $awsAccessKey = Get-ItemProperty -Path $winLogonKey -Name AWSAccessKey
@@ -300,6 +300,13 @@ Set-WinSystemLocale en-GB
 Set-WinHomeLocation -GeoId 242
 Set-WinUserLanguageList en-GB, en-US -force
 
+#Set-Culture en-US
+#Set-WinSystemLocale en-US
+#Set-WinHomeLocation -GeoId 244
+#Set-WinUserLanguageList en-US, en-GB -force
+
+
+
 # Set Regional Settings
 #"Set Regional Settings and Apply to New User Accounts"
 & control intl.cpl
@@ -312,6 +319,6 @@ Remove-ItemProperty -Path $winLogonKey -Name "DefaultUserName" -ErrorAction Sile
 Remove-ItemProperty -Path $winLogonKey -Name "DefaultDomainName" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "DefaultPassword" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AutoAdminLogon" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
+#Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
+#Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 ##### END Base_Server Footer #####
