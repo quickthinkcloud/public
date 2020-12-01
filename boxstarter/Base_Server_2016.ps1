@@ -59,7 +59,7 @@ Function MSIDownloadAndInstall {
 $Boxstarter.RebootOk=$true # Allow reboots?
 $Boxstarter.NoPassword=$false # Is this a machine with no login password?
 $Boxstarter.AutoLogin=$true # Save my password securely and auto-login after a reboot
-$useAWSRepository = $true
+$useAWSRepository = $false
 
 
 # Basic setup
@@ -162,6 +162,10 @@ If ($useAWSRepository -eq $true) {
     # Read-S3Object -BucketName qtcsoftwarerepo -Key LibreOffice/LibreOffice_5.3.6_Win_x64.msi -File C:\Repository\LibreOffice_5.3.6_Win_x64.msi -Region eu-west-1
     
 } # End If ($useAWSRepository -eq $true)
+
+
+    #AWS Configuration
+    Initialize-AWSDefaultConfiguration -AccessKey "AKIAJXMF3GE4CVZALHWA" -SecretKey "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" -Region eu-west-1
 
 
 #Essential Software
@@ -319,6 +323,6 @@ Remove-ItemProperty -Path $winLogonKey -Name "DefaultUserName" -ErrorAction Sile
 Remove-ItemProperty -Path $winLogonKey -Name "DefaultDomainName" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "DefaultPassword" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AutoAdminLogon" -ErrorAction SilentlyContinue
-#Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
-#Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 ##### END Base_Server Footer #####
