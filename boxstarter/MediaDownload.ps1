@@ -321,8 +321,8 @@ Unblock-File -Path "C:\Repository\$($softwareFilename)"
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "XenApp_and_XenDesktop_7_15_6000.iso"
 $softwareName = "XenApp_and_XenDesktop_7_15_6000"
-Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-Unblock-File -Path "C:\Repository\$($softwareFilename)"
+#Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
+#Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
 $softwareFilename = "Citrix_Virtual_Apps_and_Desktops_7_1912_2000.iso"
