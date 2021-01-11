@@ -70,24 +70,7 @@ If ($useAWSRepository -eq $true) {
 
     New-Item -path C:\Repository -name AWSInstaller.bat -type "file" -value "C:\repository\$($Uri -replace '^.*/') /quiet"
     Start-Process "C:\Repository\AWSInstaller.bat" -Wait
-
-    #download the file
-    # invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
-    # or
-    # download file from S3
-    # Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
-
-    #Extract Media
-    #if (Test-Path C:\Repository\ESETInstaller.exe) { 
-    #    Write-Host "Folder exists already"
-    #} else {
-    #    & "C:\Program Files\7-Zip\7z.exe" x "C:\Repository\$($softwareFilename)" -o"C:\Repository\"
-    #}
-
-    #Install
-    # & "C:\repository\$($Uri -replace '^.*/') /quiet"
-    # start-process "C:\repository\$($Uri -replace '^.*/') /quiet" -wait
-                                                                } else {
+} else {
     Add-Content -path "C:\Repository\$($softwareName)InstallAttempted.txt" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Detected previous installation attempt - aborting."
     Write-Host "File already exists and new text content added"
 
@@ -207,6 +190,7 @@ if (!(Test-Path "C:\Repository\CentrastageInstallAttempted.txt")) {
     } # end if
 } # end if 
 
+
 # ESET AV
 $esetFile = "C:\Repository\ESETInstaller.7z"
 if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
@@ -214,19 +198,12 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     Write-Host "Created new file and text content added"
 
     #download the file
-    #invoke-webrequest https://qtcloud.box.com/shared/static/bl5cenkbw3y7lgyn2wtrw79sg22ny3k4.7z -OutFile $esetFile
-    #invoke-webrequest https://www.dropbox.com/s/gxzr5x4h9y94qdy/ERA_Installer_x64_en_US.7z?dl=1 -OutFile $esetFile # New Location 20191014
     invoke-webrequest https://www.dropbox.com/s/j5xfsctjfd5nhcy/ESETInstaller.7z?dl=1 -OutFile $esetFile # New Location 20200225
 
     #Extract Media
-    #if (Test-Path C:\Repository\ESETInstaller.exe) { 
-    #    Write-Host "Folder exists already"
-    #} else {
-        & "C:\Program Files\7-Zip\7z.exe" x "$($esetFile)" -o"C:\Repository\"
-    #}
+    & "C:\Program Files\7-Zip\7z.exe" x "$($esetFile)" -o"C:\Repository\"
 
-    #New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ERA_Installer_x64_en_US.exe --silent --accepteula"
-    New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ESMC_Installer_x64_en_US.exe --silent --accepteula" #New Installer 20200225
+    New-Item -path C:\Repository -name ESETInstaller.bat -type "file" -value "C:\Repository\ESETInstaller.exe --silent --accepteula" #New Installer 20210111
 
     & C:\Repository\ESETInstaller.bat
     # & $esetFile --silent --accepteula
@@ -243,7 +220,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
         Remove-Item C:\Repository\ESETInstaller.bat -Force
     } # end if
     if (Test-Path C:\Repository\ESETInstaller.bat) {
-        Remove-Item C:\Repository\ERA_Installer_x64_en_US.exe -Force
+        Remove-Item C:\Repository\ESETInstaller.exe -Force
     } # end if
 } # end if
 # END of ESET AV
