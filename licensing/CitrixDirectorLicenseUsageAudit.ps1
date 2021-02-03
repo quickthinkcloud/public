@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201014
+$scriptVersion = 20210203
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -230,6 +230,7 @@ $userObject.Count
 
 
 #Upload to dropbox
+Start-Sleep -Seconds 60
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" "/$($date) - $($customerName) - Citrix Logins.csv"
 
 
@@ -337,4 +338,5 @@ $global:arrCitrixUsersAndSessions
 $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv"
 
 #Upload to dropbox
+Start-Sleep -Seconds 60
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
