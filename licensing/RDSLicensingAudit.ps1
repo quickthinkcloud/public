@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20201102.5
+$scriptVersion = 20210203
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -637,6 +637,7 @@ ForEach ($a in $inputDataSet) {
 
 
 #Upload to dropbox
+Start-Sleep -Seconds 60
 . .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
  
 } #End Main
