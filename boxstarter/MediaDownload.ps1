@@ -10,7 +10,7 @@ New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction
 New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a+a/lS" -ErrorAction SilentlyContinue 
 START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/MediaDownload.ps1
 #>
-$version = 20190904
+$version = 20210210
 Write-Host "Version: $($version)" -ForegroundColor Yellow
 
 ### FUNCTIONS ###
@@ -332,8 +332,8 @@ Unblock-File -Path "C:\Repository\$($softwareFilename)"
 
 #https://qtcsoftwarerepo.s3-eu-west-1.amazonaws.com/Citrix/build-12.1-55.18_nc_64.tgz
 $softwareFolderInQTCsoftwareREPO = "Citrix" # no trailing slash
-$softwareFilename = "build-12.1-59.16_nc_64.tgz"
-$softwareName = "build-12.1-59.16_nc_64"
+$softwareFilename = "build-12.1-61.18_nc_64.tgz"
+$softwareName = "build-12.1-61.18_nc_64"
 Read-S3Object -BucketName qtcsoftwarerepo -Key "$($softwareFolderInQTCsoftwareREPO)/$($softwareFilename)" -File "C:\Repository\$($softwareFilename)" -Region eu-west-1
 Unblock-File -Path "C:\Repository\$($softwareFilename)"
 #>
