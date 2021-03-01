@@ -4,7 +4,7 @@ $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
-New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a+a/a" -ErrorAction SilentlyContinue 
+New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a+a/lS" -ErrorAction SilentlyContinue 
 START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/Base_Server_2016.ps1
 #>
 
@@ -292,11 +292,21 @@ Set-Culture en-GB
 Set-WinSystemLocale en-GB
 Set-WinHomeLocation -GeoId 242
 Set-WinUserLanguageList en-GB, en-US -force
+#Set-TimeZone "GMT Standard Time"
+
 
 #Set-Culture en-US
 #Set-WinSystemLocale en-US
 #Set-WinHomeLocation -GeoId 244
 #Set-WinUserLanguageList en-US, en-GB -force
+
+#Set-TimeZone "Eastern Standard Time"
+
+#Get-Culture
+#Get-WinSystemLocale
+#Get-WinHomeLocation
+#Get-WinUserLanguageList
+#& control intl.cpl
 
 
 
