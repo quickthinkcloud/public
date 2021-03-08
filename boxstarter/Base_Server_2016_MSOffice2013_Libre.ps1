@@ -232,6 +232,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     Write-Host "Created new file and text content added"
 
     #download the file
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     invoke-webrequest https://www.dropbox.com/s/j5xfsctjfd5nhcy/ESETInstaller.7z?dl=1 -OutFile $esetFile # New Location 20200225
 
     #Extract Media
