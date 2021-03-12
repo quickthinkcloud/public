@@ -4,7 +4,7 @@ $winLogonKey="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Remove-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -ErrorAction SilentlyContinue
 Remove-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -ErrorAction SilentlyContinue
 New-ItemProperty -Path $winLogonKey -Name "AWSAccessKey" -Value "a" -ErrorAction SilentlyContinue 
-New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a+a/lS" -ErrorAction SilentlyContinue 
+New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a+a/a" -ErrorAction SilentlyContinue 
 START http://boxstarter.org/package/url?https://raw.githubusercontent.com/quickthinkcloud/public/master/boxstarter/Base_Server_2016.ps1
 #>
 
@@ -231,6 +231,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     Write-Host "Created new file and text content added"
 
     #download the file
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     invoke-webrequest https://www.dropbox.com/s/j5xfsctjfd5nhcy/ESETInstaller.7z?dl=1 -OutFile $esetFile # New Location 20200225
 
     #Extract Media
@@ -292,8 +293,8 @@ Set-Culture en-GB
 Set-WinSystemLocale en-GB
 Set-WinHomeLocation -GeoId 242
 Set-WinUserLanguageList en-GB, en-US -force
-#Set-TimeZone "GMT Standard Time"
-
+Set-TimeZone "GMT Standard Time"
+#& control intl.cpl
 
 #Set-Culture en-US
 #Set-WinSystemLocale en-US
