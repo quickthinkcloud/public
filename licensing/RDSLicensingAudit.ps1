@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210301
+$scriptVersion = 20210505
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -899,10 +899,16 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
     #Test the Creds
     $result = Test-Cred $DomCreds
     if ($result -eq "Not Authenticated") {
-        Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
-        Copy-Item -Path $filename -Destination "$($filename)_OLD"
-        Remove-Item $filename
-        pause
+        #Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
+        #Copy-Item -Path $filename -Destination "$($filename)_OLD"
+        #Remove-Item $filename
+        #pause
+      
+        $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
+        Add-Content "ERROR_$($currFQDN.FQDN).LOG" $err
+        
+        Write-host $err -ForegroundColor Red
+        Start-Sleep -Seconds 3
     } else {
         Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
     } #End if
