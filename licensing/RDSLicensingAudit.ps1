@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210505
+$scriptVersion = 20210505.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -637,7 +637,7 @@ ForEach ($a in $inputDataSet) {
 
 
 #Upload to dropbox
-Start-Sleep -Seconds 60
+Start-Sleep -Seconds 3
 . .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
  
 } #End Main
@@ -907,7 +907,7 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
       
         $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
         Add-Content "ERROR_$($currFQDN.FQDN).LOG" $err
-        
+        . .\dropbox-upload.ps1 "ERROR_$($currFQDN.FQDN).LOG"  "/ERROR_$($currFQDN.FQDN).LOG"
         Write-host $err -ForegroundColor Red
         Start-Sleep -Seconds 3
     } else {
