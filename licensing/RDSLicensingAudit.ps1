@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210505.4
+$scriptVersion = 20210505.5
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -752,6 +752,12 @@ Function Update-Myself {
                 write-host "Updating to version: $($scriptVersion) ..." -ForegroundColor Green
                 Start-Sleep -Seconds 3
                 Copy-Item $SourcePath $CurrentScript -Force
+
+                $updateNotes= "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'): $($env:COMPUTERNAME) Updated $($MyInvocation.ScriptName) to Script Version: $($scriptVersion))"   
+                $updateFile = "$($customerName)_$($env:COMPUTERNAME)_$($MyInvocation.ScriptName)Update.log" 
+                Add-Content $updateFile $updateNotes
+                . .\dropbox-upload.ps1 $updateFile  "/$($updateFile)"
+
                 #If the script was updated, run it with orginal parameters
                 #&$CurrentScript $script:args
                 &$CurrentScript $ConfigFile
@@ -766,6 +772,7 @@ Function Update-Myself {
 ### SCRIPT BODY ###
 #Run the config .ps1 to set the variables
 write-host "Current Script Version: $($scriptVersion)"
+Start-Sleep -Seconds 3
 . .\$ConfigFile
 cd $workingDir
 
