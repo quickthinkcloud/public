@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210505.3
+$scriptVersion = 20210505.4
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -749,7 +749,7 @@ Function Update-Myself {
         {
             if ($(Get-Item $SourcePath).LastWriteTimeUtc -gt $(Get-Item $CurrentScript ).LastWriteTimeUtc)
             {
-                write-host "Updating..." -ForegroundColor Green
+                write-host "Updating to version: $($scriptVersion) ..." -ForegroundColor Green
                 Start-Sleep -Seconds 3
                 Copy-Item $SourcePath $CurrentScript -Force
                 #If the script was updated, run it with orginal parameters
@@ -765,6 +765,7 @@ Function Update-Myself {
 
 ### SCRIPT BODY ###
 #Run the config .ps1 to set the variables
+write-host "Current Script Version: $($scriptVersion)"
 . .\$ConfigFile
 cd $workingDir
 
