@@ -749,7 +749,8 @@ Function Update-Myself {
         {
             if ($(Get-Item $SourcePath).LastWriteTimeUtc -gt $(Get-Item $CurrentScript ).LastWriteTimeUtc)
             {
-                write-host "Updating..."
+                write-host "Updating..." -ForegroundColor Green
+                Start-Sleep -Seconds 3
                 Copy-Item $SourcePath $CurrentScript -Force
                 #If the script was updated, run it with orginal parameters
                 #&$CurrentScript $script:args
