@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210505.6
+$scriptVersion = 20210505.7
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -754,10 +754,13 @@ Function Update-Myself {
                 Copy-Item $SourcePath $CurrentScript -Force
 
                 $updateNotes= "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'): $($env:COMPUTERNAME) Updated $($MyInvocation.ScriptName) to Script Version: $($scriptVersion))"   
-                $updateFile = "$($customerName)_$($env:COMPUTERNAME)_$($MyInvocation.ScriptName)Update.log" 
+                $me = [io.path]::GetFileNameWithoutExtension($MyInvocation.ScriptName)
+                $updateFile = "$($customerName)_$($env:COMPUTERNAME)_$($me)_Update.log" 
+
                 Add-Content .\$updateFile $updateNotes
                 . .\dropbox-upload.ps1 $updateFile  "/$($updateFile)"
-
+                
+    
                 #If the script was updated, run it with orginal parameters
                 #&$CurrentScript $script:args
                 &$CurrentScript $ConfigFile
