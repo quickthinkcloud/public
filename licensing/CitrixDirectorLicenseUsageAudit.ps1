@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210601.2
+$scriptVersion = 20210601.3
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -30,7 +30,7 @@ $citrixDirectorServer = "CitrixDirectorServer" # Storefront Server
 . .\$ConfigFile
 
 #Additional Functions
-.\sftp_function.ps1
+. .\sftp_function.ps1
 
 ### SELF UPDATER SECTION ###
 #SCRIPT ADMIN VARIABLES!
