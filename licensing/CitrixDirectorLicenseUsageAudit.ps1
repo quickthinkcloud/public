@@ -237,7 +237,7 @@ Start-Sleep -Seconds 60
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" "/$($date) - $($customerName) - Citrix Logins.csv"
 
 Get-SFTPSession | Remove-SFTPSession
-Send-SFTPData -sourceFiles "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
+Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Logins.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
 
 
 $mycounter = 0
@@ -344,7 +344,7 @@ $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($cust
 Start-Sleep -Seconds 60
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
 
-Send-SFTPData -sourceFiles "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
+Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
 # Disconnect SFTP session
 (Get-SFTPSession -SessionId 0).Disconnect()
 Get-SFTPSession
