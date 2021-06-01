@@ -58,7 +58,7 @@ function Set-SFTPSession {
         [Parameter(Mandatory=$true)]
         [System.Management.Automation.PSCredential]$credential #Prompts for your SFTP credentials
     )
-    New-SFTPSession -ComputerName $SFTPserver -Credential $credential -InformationAction SilentlyContinue -ErrorAction SilentlyContinue
+    New-SFTPSession -ComputerName $SFTPserver -Credential $credential -InformationAction SilentlyContinue -ErrorAction SilentlyContinue -AcceptKey:$true
 }
 
 # Performs some basic network connectivity tests (DNS and port) before progressing on to attempt connection
