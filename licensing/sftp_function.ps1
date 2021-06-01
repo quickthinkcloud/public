@@ -134,8 +134,7 @@ function Start-SFTPTransfer {
     
     foreach ($file in $sourceFiles) {
         Write-Host "$($tab)$workingdir\$file... "
-        #Set-SFTPFile -SessionId $sessionID -LocalFile "$($workingdir)\$file" -RemotePath $SFTProotDir -Overwrite -ErrorAction Stop
-        Set-SFTPFile -SessionId $sessionID -LocalFile "$file" -RemotePath $SFTProotDir -Overwrite -ErrorAction Stop
+        Set-SFTPFile -SessionId $sessionID -LocalFile "$($workingdir)\$file" -RemotePath $SFTProotDir -Overwrite -ErrorAction Stop
     }
     write-host "--------------------------------------------"
 }
