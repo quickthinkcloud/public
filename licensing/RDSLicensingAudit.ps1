@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210601
+$scriptVersion = 20210601.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -637,8 +637,8 @@ ForEach ($a in $inputDataSet) {
 
 
 #Upload to dropbox
-Start-Sleep -Seconds 3
-. .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
+#Start-Sleep -Seconds 3
+#. .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
 
 #Upload to SFTP
 Start-Sleep -Seconds 3
@@ -762,7 +762,7 @@ Function Update-Myself {
                 $updateFile = "$($customerName)_$($env:COMPUTERNAME)_$($me)_Update.log" 
 
                 Add-Content .\$updateFile $updateNotes
-                . .\dropbox-upload.ps1 $updateFile  "/$($updateFile)"
+                #. .\dropbox-upload.ps1 $updateFile  "/$($updateFile)"
                 Send-SFTPData -sourceFiles $updateFile -credential $SFTPCreds -SFTProotDir "/licensing"
     
                 #If the script was updated, run it with orginal parameters
@@ -924,7 +924,7 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
       
         $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
         Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
-        . .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
+        #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
         Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
         Write-host $err -ForegroundColor Red
         Start-Sleep -Seconds 3
