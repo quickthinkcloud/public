@@ -233,7 +233,7 @@ $userObject.Count
 
 
 #Upload to dropbox
-Start-Sleep -Seconds 60
+Start-Sleep -Seconds 3
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" "/$($date) - $($customerName) - Citrix Logins.csv"
 
 Get-SFTPSession | Remove-SFTPSession
@@ -341,7 +341,7 @@ $global:arrCitrixUsersAndSessions
 $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv"
 
 #Upload to dropbox
-Start-Sleep -Seconds 60
+Start-Sleep -Seconds 3
 . .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
 
 Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
