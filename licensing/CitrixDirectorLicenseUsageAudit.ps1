@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210601
+$scriptVersion = 20210601.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -234,7 +234,7 @@ $userObject.Count
 
 #Upload to dropbox
 Start-Sleep -Seconds 3
-. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" "/$($date) - $($customerName) - Citrix Logins.csv"
+#. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Logins.csv" "/$($date) - $($customerName) - Citrix Logins.csv"
 
 Get-SFTPSession | Remove-SFTPSession
 Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Logins.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
@@ -342,7 +342,7 @@ $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($cust
 
 #Upload to dropbox
 Start-Sleep -Seconds 3
-. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
+#. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
 
 Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
 # Disconnect SFTP session
