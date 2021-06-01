@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210505.7
+$scriptVersion = 20210601
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -639,6 +639,10 @@ ForEach ($a in $inputDataSet) {
 #Upload to dropbox
 Start-Sleep -Seconds 3
 . .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
+
+#Upload to SFTP
+Start-Sleep -Seconds 3
+Send-SFTPData -sourceFiles $ExportCSVfilename -credential $SFTPCreds -SFTProotDir "/licensing"
  
 } #End Main
 Function Test-Cred {
@@ -759,7 +763,7 @@ Function Update-Myself {
 
                 Add-Content .\$updateFile $updateNotes
                 . .\dropbox-upload.ps1 $updateFile  "/$($updateFile)"
-                
+                Send-SFTPData -sourceFiles $updateFile -credential $SFTPCreds -SFTProotDir "/licensing"
     
                 #If the script was updated, run it with orginal parameters
                 #&$CurrentScript $script:args
@@ -779,6 +783,8 @@ Start-Sleep -Seconds 3
 . .\$ConfigFile
 cd $workingDir
 
+#Additional Functions
+.\sftp_function.ps1
 
 ### SELF UPDATER SECTION ###
 #SCRIPT ADMIN VARIABLES!
@@ -919,6 +925,7 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
         $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
         Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
         . .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
+        Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
         Write-host $err -ForegroundColor Red
         Start-Sleep -Seconds 3
     } else {
@@ -934,3 +941,10 @@ Foreach ($initialGroup in $GroupName) {
     Main($initialGroup) #| Add-Content C:\temp\outputusers.csv    
 }
 Write-Host "Number of trusted domains: $($domTrustsCount)" -ForegroundColor Yellow
+
+
+# Disconnect SFTP session
+(Get-SFTPSession -SessionId 0).Disconnect()
+Get-SFTPSession
+Get-SFTPSession | Remove-SFTPSession
+Get-SFTPSession
