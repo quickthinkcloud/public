@@ -89,7 +89,7 @@ Function Update-Myself {
 } # End Function
 
 UpdatesAvailable
-#Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
+Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
 ### END OF SELF UPDATER SECTION ###
 
 
