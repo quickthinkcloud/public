@@ -7,7 +7,7 @@ Add-DnsServerResourceRecordCName -Name "VILLEFORT" -HostNameAlias "QTCServices.m
 #Register-PSRepository -Default -Verbose
 Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
 
-Install-Module posh-ssh
+Install-Module posh-ssh -RequiredVersion 2.3.0
 
 get-module posh-ssh
 get-command -Module *POSH*
