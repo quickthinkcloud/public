@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210920
+$scriptVersion = 20210922
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -784,7 +784,7 @@ Start-Sleep -Seconds 3
 cd $workingDir
 
 
-### This section FORCES Dynamic groups based on the criteria below ###
+<### This section FORCES Dynamic groups based on the criteria below ###
 $GroupName = @()
 $arrOfGroups = Get-ADGroup -Filter {Name -like "RDS_*"} | sort name | select name
 foreach ($grp in $arrOfGroups) {
@@ -794,7 +794,7 @@ $arrOfGroups = Get-ADGroup -Filter {Name -like "REPORT_*"} | sort name | select 
 foreach ($grp in $arrOfGroups) {
     $GroupName += $grp.name
 }
-### End of Dynamic groups Force ###
+### End of Dynamic groups Force ###>
 
 #Additional Functions
 . .\sftp_function.ps1
