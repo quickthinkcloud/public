@@ -6,7 +6,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211004.5
+$scriptVersion = 20211005
 $LogPath = "$($workingDir)QTCAuditScript.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCAuditScript Started (scriptVersion: $($scriptVersion))"
 
@@ -18,7 +18,6 @@ $customerName = "CustomerName"
 #$workingDir = "C:\Users\$($env:USERNAME)\"
 
 
-### FUNCTIONS ###
 ### FUNCTIONS ###
 Function Get-QTCFile {
   param
@@ -134,9 +133,15 @@ cd $workingDir
 #SCRIPT ADMIN VARIABLES!
 $date = get-date -Format yyyyMMdd
 #$datetime = get-date -Format yyyyMMdd_HHmm
-$outputfilename = "$($date)_$($customerName)_Audit_DomainAdmins.csv"
 
+$outputfilename = "$($date)_$($customerName)_Audit_DomainAdmins.csv"
 Get-ADGroupMember "Domain Admins" -Recursive | sort name | select name | Export-Csv $outputfilename -NoTypeInformation -Force
+
+$outputfilename = "$($date)_$($customerName)_Audit_SQLAdmins.csv"
+Get-ADGroupMember "SQL_Admins" -Recursive | sort name | select name | Export-Csv $outputfilename -NoTypeInformation -Force
+
+$outputfilename = "$($date)_$($customerName)_Audit_CitrixAdmins.csv"
+Get-ADGroupMember "Citrix_Admins" -Recursive | sort name | select name | Export-Csv $outputfilename -NoTypeInformation -Force
 
 
 #Upload to SFTP
