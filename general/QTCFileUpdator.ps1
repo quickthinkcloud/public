@@ -1,4 +1,9 @@
-﻿### FUNCTIONS ###
+﻿$scriptVersion = 20211005
+$LogPath = "$($workingDir)QTCFileUpdator.log"
+Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCFileUpdator Started (scriptVersion: $($scriptVersion))"
+
+
+### FUNCTIONS ###
 Function Get-QTCFile {
   param
   (
