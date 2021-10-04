@@ -7,8 +7,8 @@ param (
 ### END OF PARAMETERS ###
 
 $scriptVersion = 20211005
-$LogPath = "$($workingDir)QTCAuditScript.log"
-Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCAuditScript Started (scriptVersion: $($scriptVersion))"
+$LogPath = "$($workingDir)QTCCustomerAuditScript.log"
+Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCCustomerAuditScript Started (scriptVersion: $($scriptVersion))"
 
 ### GLOBAL VARIABLES ###
 # None
