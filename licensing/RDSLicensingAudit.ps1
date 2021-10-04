@@ -1059,4 +1059,7 @@ Get-SFTPSession | Remove-SFTPSession
 Get-SFTPSession
 
 Get-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
-Update-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
+#Update-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
+
+Get-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
+#Update-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
