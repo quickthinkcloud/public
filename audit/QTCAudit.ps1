@@ -6,7 +6,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211004
+$scriptVersion = 20211004.2
 $LogPath = "$($workingDir)QTCAuditScript.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCAuditScript Started (scriptVersion: $($scriptVersion))"
 
