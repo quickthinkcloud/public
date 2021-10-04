@@ -6,7 +6,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211004.4
+$scriptVersion = 20211004.5
 $LogPath = "$($workingDir)QTCAuditScript.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCAuditScript Started (scriptVersion: $($scriptVersion))"
 
@@ -19,7 +19,8 @@ $customerName = "CustomerName"
 
 
 ### FUNCTIONS ###
-Function Update-File {
+### FUNCTIONS ###
+Function Get-QTCFile {
   param
   (
     [Parameter(Mandatory = $true, Position=0)]
@@ -27,8 +28,43 @@ Function Update-File {
     [Parameter(Mandatory = $true, Position=1)]
     [string]$filesourceURL
   )
-    #$filepath = "C:\QTCScripts\Scheduled\LicenseAudit\aaa\bbb.ps1"
+    #$filepath = "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1"
     #$filesourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
+
+    $arr = $filepath.Split("\")
+
+    $count = 0
+#    if (Get-Variable newPath) {
+#        Remove-Variable -Name newPath
+#    }
+    while ($count -lt ($arr.Count -1)) {
+        $newPath += "$($arr[$count])\"
+        $count++
+    }
+
+    #check that the destination directory exists
+    if (!(Test-Path $newPath)) {  
+        #CreateDirectory
+        New-Item -Path "$($newPath)" -ItemType "directory" 
+    }
+
+    #get QTC file
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest $filesourceURL -OutFile "$($filepath)"
+
+
+
+} # End Function
+Function Update-QTCFile {
+  param
+  (
+    [Parameter(Mandatory = $true, Position=0)]
+    [string]$filepath,
+    [Parameter(Mandatory = $true, Position=1)]
+    [string]$filesourceURL
+  )
+    #$filepath = "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1"
+    #$filesourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
 
     $item = Get-Item $filepath
 
@@ -80,7 +116,9 @@ Function Update-File {
     
 
 } # End Function
-#Update-File -filepath "C:\QTCScripts\Scheduled\LicenseAudit\aaa.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
+
+#Get-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
+#Update-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
 
 
 ### SCRIPT BODY ###
