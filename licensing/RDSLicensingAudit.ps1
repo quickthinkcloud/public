@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211005
+$scriptVersion = 20211005.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -1058,8 +1058,8 @@ Get-SFTPSession
 Get-SFTPSession | Remove-SFTPSession
 Get-SFTPSession
 
-Get-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
+#Get-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
 #Update-QTCFile -filepath "C:\QTCScripts\Scheduled\Audit\QTCCustomerAudit.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/audit/QTCCustomerAudit.ps1"
 
-Get-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
+#Get-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
 #Update-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
