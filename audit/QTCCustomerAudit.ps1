@@ -6,7 +6,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211005
+$scriptVersion = 20211005.2
 $LogPath = "$($workingDir)QTCCustomerAuditScript.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):QTCCustomerAuditScript Started (scriptVersion: $($scriptVersion))"
 
@@ -125,10 +125,12 @@ Function Update-QTCFile {
 write-host "Current Script Version: $($scriptVersion)"
 Start-Sleep -Seconds 3
 . .\$ConfigFile
+#. $ConfigFile
+$workingDir = Get-Location
 cd $workingDir
 
 #Additional Functions
-. .\sftp_function.ps1
+#. .\sftp_function.ps1
 
 #SCRIPT ADMIN VARIABLES!
 $date = get-date -Format yyyyMMdd
