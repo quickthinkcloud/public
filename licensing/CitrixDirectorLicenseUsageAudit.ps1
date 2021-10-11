@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20210601.3
+$scriptVersion = 20211110
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -157,7 +157,7 @@ write-host "2. This Month"
 write-host "3. Manual input year and month"
 write-host ""
 #$userinput = read-host -Prompt "Option"
-$userinput = 1
+$userinput = 2
 write-host "$($userinput) selected." -ForegroundColor Yellow
 switch ($userinput)
 {
