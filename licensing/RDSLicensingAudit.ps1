@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211005.2
+$scriptVersion = 20211025
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -259,7 +259,7 @@ foreach($grp in $currentGroup.Members) {
  
                 # Add user-defined customs members: the records retrieved with the three PowerShell commands
                 $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
-                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.Name -Name ObjectName #The object Name i.e. name of a group
+                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.samaccountname -Name ObjectName #The object Name i.e. name of a group
                 $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
                 $currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
                 #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
