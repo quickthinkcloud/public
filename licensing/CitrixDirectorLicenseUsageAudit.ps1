@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211110
+$scriptVersion = 20220104
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -137,9 +137,10 @@ $year = get-date -Format yyyy
 $currentMonth = get-date -Format MM
 if ($currentMonth -eq "01" ){
     write-host "rolling back a year and setting month to 12" -ForegroundColor Yellow
-    $year = $year -1 # last year
+    $lastyear = $year -1 # last year
     $lastMonth = 12 # #december
 } else {
+    $lastyear = $year
     $lastMonth = $currentMonth -1 # last month
     if ($lastMonth -le 9) {
         $lastMonth = "0$lastMonth" # last month with leading 0 for single digit months
@@ -161,7 +162,7 @@ $userinput = 2
 write-host "$($userinput) selected." -ForegroundColor Yellow
 switch ($userinput)
 {
-    1 {$date = "$($year)-$($lastMonth)"}
+    1 {$date = "$($lastyear)-$($lastMonth)"}
     2 {$date = "$($year)-$($currentMonth)"}
     3 { #Query the user for an updated date value, in specified format
         $date = read-host "Please enter the date you wish to search (YYYY-MM-DD or YYYY-MM): "
