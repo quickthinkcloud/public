@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20211210
+$scriptVersion = 20220126
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -155,24 +155,12 @@ Function RecursivelyEnumerateGroupObjects {
         #[string]$global:parentObject = ""
     )
 
-    #First Run check
     if ($firstRun -ne 1) {
         ##Create a blank array
-        #$global:arrGroupsWithinDomains = @()
-        #write-host "First Run" -ForegroundColor Yellow
         $global:parentGrpName = ""
         $global:firstRun = 1
-        #$global:parentGrpName = $grpName
-        #write-host "parentGrpName = $($parentGrpName)"
-        #write-host "firstRun = $($firstRun)"
-        #pause
-    } 
-    Else {
-        #Write-Host "This is not the first run through"
-        #$global:parentGrpName = $grpName
-        #write-host "firstRun = $($firstRun)"
-        #pause
-    }
+
+    } # End If
     
     $currentObjSID = ""
     $currentObjClass = ""
@@ -184,7 +172,6 @@ Function RecursivelyEnumerateGroupObjects {
     Write-Host $grpName -ForegroundColor green
     Write-Host ""
  
-    #$grpName = "ME_DATA_IMPORT_LIVE"
     #Populate the currentGroup
     #TRY{$currentGroup = get-adgroup $grpName -Properties * | sort ObjectClass -Descending}CATCH{}
     $currentGroup = get-adgroup $grpName -Properties * | sort ObjectClass -Descending
@@ -206,15 +193,9 @@ Function RecursivelyEnumerateGroupObjects {
      }#>
       
     #For each USER member of the group
-foreach($grp in $currentGroup.Members) {
+    foreach($grp in $currentGroup.Members) {
         #Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *
         $currentObj = Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * #| select *
- 
-        #"currentObj"
-        #$currentObj
-        #"end of currentObj"
-        #$currentObjSID.accountdomainsid
-        #pause
         
         $currentObjSID = $currentObj.objectSid
         $currentObjClass = $currentObj.ObjectClass
@@ -224,23 +205,13 @@ foreach($grp in $currentGroup.Members) {
         "currentObjClass = $($currentObjClass)"
         "currentObjName = $($currentObjName)"
 
-        #write-host "$($currentObjSID) $($currentObjClass) $($currentObjName)"
-        #$grp
-
         #String Splitting:
         $tempString = $currentObjName.sAMAccountName
         #Write-Host "sAMAccountName: $($tempString)"
         #$tempLength = $tempString.Length
-        #$tempLength
         $tempSlash = $tempString.IndexOf("\")
-        #$tempSlash
         TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}Catch{}
-        #$tempDomain 
         $tempGroup = $tempString.Substring($tempSlash+1)
-        #$tempGroup 
- 
-        #Write-Host "TempDomain = $tempDomain and TempGroup = $tempGroup and currentObjClass $($currentObjClass.ToString())"
-        #Start-Sleep -s 60
  
         #if($currentObjClass.ToString() = "foreignSecurityPrincipal") {
         switch ($currentObjClass.ToString())
@@ -265,168 +236,93 @@ foreach($grp in $currentGroup.Members) {
                 #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
                 $global:arrGroupsWithinDomains += $currentAdObject
                 #write-host "end of user"    
-                }#End if
-        
-            } # end user
+            }#End if
+        } # end user
         "group" {
             write-host "Group..." -ForegroundColor Cyan
             RecursivelyEnumerateGroupObjects($currentObj.Name)
-            } #End of "group"
+        } #End of "group"
         "foreignSecurityPrincipal" {
+            write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
+            $grpName = $tempGroup
 
+            $discoveredDomainOfADDomain = $tempDomain #"EU"
+            $discoveredDomainOfADObject = $grpName #"QTCAdmin"
 
-                #"currentObj"
-                #$currentObj
-                #"end of currentObj"
-                #$currentObjSID.accountdomainsid
-                #pause
-
-
-                       
-                write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
-                $grpName = $tempGroup
-                
-
-                $discoveredDomainOfADDomain = $tempDomain #"EU"
-                $discoveredDomainOfADObject = $grpName #"QTCAdmin"
-                
-                #$discoveredDomainOfADDomain
-                #$discoveredDomainOfADObject
-                #pause
-                foreach ($rec in $arrTrustedDomainsFromCSV ) {
-                    If ($rec.NetBIOS -eq $discoveredDomainOfADDomain) {
-
-
-                        $DomCreds = Get-Variable -Name "trustedDom$($rec.ID)Creds" -ValueOnly
-    
-                        #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                        #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                        Try { #If it's a user...
+            foreach ($rec in $arrTrustedDomainsFromCSV ) {
+                If ($rec.NetBIOS -eq $discoveredDomainOfADDomain) {
+                    $DomCreds = Get-Variable -Name "trustedDom$($rec.ID)Creds" -ValueOnly
+                    #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                    #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                    Try { #If it's a user...
                         $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            ForEach ($fspMem in $fspMembers) { 
-	                            #$fspMem | fl
-	                            #String Splitting:
-	                            $tempString = $currentObjName.sAMAccountName
-	                            #$tempLength = $tempString.Length
-	                            #$tempLength
-	                            $tempSlash = $tempString.IndexOf("\")
-	                            #$tempSlash
-	                            $tempDomain = $tempString.Substring(0,$tempSlash)
-	                            #$tempDomain 
-	                            $tempGroup = $tempString.Substring($tempSlash+1)
-	                            #$tempGroup 
-	                            # Create a new instance of a .Net object
-	                            $currentAdObject = New-Object System.Object
-	                            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-	                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-	                            $global:arrGroupsWithinDomains += $currentAdObject
-                            }
+                        ForEach ($fspMem in $fspMembers) { 
+                            #String Splitting:
+	                        $tempString = $currentObjName.sAMAccountName
+	                        #$tempLength = $tempString.Length
+	                        $tempSlash = $tempString.IndexOf("\")
+	                        $tempDomain = $tempString.Substring(0,$tempSlash)
+	                        $tempGroup = $tempString.Substring($tempSlash+1)
+
+	                        # Create a new instance of a .Net object
+	                        $currentAdObject = New-Object System.Object
+                            # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
+                            $global:arrGroupsWithinDomains += $currentAdObject
                         }
-                        Catch { #if it's not a user...
-                            
-                            Try {
-
-                                #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
-                                $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                                #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                                ForEach ($fspMem in $fspMembers) { 
-                                    #$fspMem | fl
-                                    #String Splitting:
-                                    $tempString = $currentObjName.sAMAccountName
-                                    #$tempLength = $tempString.Length
-                                    #$tempLength
-                                    $tempSlash = $tempString.IndexOf("\")
-                                    #$tempSlash
-                                    $tempDomain = $tempString.Substring(0,$tempSlash)
-                                    #$tempDomain 
-                                    $tempGroup = $tempString.Substring($tempSlash+1)
-                                    #$tempGroup 
-                                    # Create a new instance of a .Net object
-                                    $currentAdObject = New-Object System.Object
-                                    # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-                                    $global:arrGroupsWithinDomains += $currentAdObject
-                                }
-
+                    } Catch { #if it's not a user...
+                        Try {
+                            #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
+                            $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                            #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
+                            ForEach ($fspMem in $fspMembers) { 
+                                #String Splitting:
+                                $tempString = $currentObjName.sAMAccountName
+                                #$tempLength = $tempString.Length
+                                $tempSlash = $tempString.IndexOf("\")
+                                $tempDomain = $tempString.Substring(0,$tempSlash)
+                                $tempGroup = $tempString.Substring($tempSlash+1)
+                                # Create a new instance of a .Net object
+                                $currentAdObject = New-Object System.Object
+                                # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
+                                $global:arrGroupsWithinDomains += $currentAdObject
                             }
-                            Catch {
-                                "currentObj"
-                                $currentObj
-                                "end of currentObj"
+                        } Catch {
+                            Write-Host "currentObj: " -NoNewline
+                            Write-Host $currentObj
+                            Write-Host "tempDomain: " -NoNewline
+                            Write-Host $tempDomain
+                            Write-Host "tempGroup: " -NoNewline
+                            Write-Host $tempGroup
+                            Write-Host "grpName: " -NoNewline
+                            Write-Host $grpName
+                            Write-Host "currentObjSID: " -NoNewline
+                            Write-Host $currentObjSID
+                            Write-Host "currentObjClass: " -NoNewline
+                            Write-Host $currentObjClass
+                            Write-Host "currentObjName: " -NoNewline
+                            Write-Host $currentObjName
+                            Write-Host "discoveredDomainOfADDomain: " -NoNewline
+                            Write-Host $discoveredDomainOfADDomain
+                            Write-Host "discoveredDomainOfADObject: " -NoNewline
+                            Write-Host $discoveredDomainOfADObject
 
-                                $tempDomain
-                                $tempGroup
-                                $grpName
-                                $currentObjSID
-                                $currentObjClass
-                                $currentObjName
-                                $discoveredDomainOfADDomain
-                                $discoveredDomainOfADObject
+                            #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
+                            Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
+                        } # End Try Catch
+                    } # End Try Catch
+                } # End if
+            } #End foreach
 
-                                #"this2"
-                                #$currentObj.DistinguisedName
-                                #$currentObj.objectSid
-                                #"this3"
-                                #pause
-                                #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
-                                Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
-                                #pause
-                            }
-                            
-
-                        } #End Catch
-
-                        #$currentAdObject
-                        #pause
-
-                    } else {
-                        #"this is the place where you are 657436157316873168431871"
-                        #pause
-                    } #End if
-                } #End foreach
-
-
-
-
-    
-
-
-
-                <#
-                ForEach ($fspMem in $fspMembers) { 
-                    #$fspMem | fl
-  
-                    #String Splitting:
-                    $tempString = $currentObjName.sAMAccountName
-                    #$tempLength = $tempString.Length
-                    #$tempLength
-                    $tempSlash = $tempString.IndexOf("\")
-                    #$tempSlash
-                    TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}CATCH{}
-                    #$tempDomain 
-                    $tempGroup = $tempString.Substring($tempSlash+1)
-                    #$tempGroup 
-  
-                    # Create a new instance of a .Net object
-                    $currentAdObject = New-Object System.Object
- 
-                    # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-                    $global:arrGroupsWithinDomains += $currentAdObject
-                } #End ForEach ($fspMem in $fspMembers)
-                #>                               
-
-            } #end "foreignSecurityPrincipal"
+        } #end "foreignSecurityPrincipal"
 
         } #End switch
     } #End of foreach($grp of $currentGroup.Members)
@@ -516,7 +412,7 @@ Function Main {
     )
     
     #Set List of QTC users  (QTC ADMINS)
-    $qtcUserArray = "chris.phillips","david.barrett","ian.witts","luke.kinson","Test","Test001"
+    $qtcUserArray = "chris.phillips","david.barrett","ian.witts","luke.kinson","stephen.wilding","QTCTEST"
     Write-Host "Group: $grpName" -ForegroundColor Green
  
     #Get local domain NETBIOS name
@@ -569,7 +465,7 @@ Function Main {
     Write-host "Unique Users Only (minus parent): $($arrGroupsWithinDomainsUniqueUsersONLYMinusParent.count)" -ForegroundColor Yellow
  
     #Export
-    $arrGroupsWithinDomains | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomains.csv"
+    $arrGroupsWithinDomains | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomains.csv" -NoTypeInformation
  
     #$arrGroupsWithinDomainsUnique | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomainsUnique.csv"
     #$arrGroupsWithinDomainsUniqueNoComps | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomainsUniqueNoComps.csv"
@@ -579,40 +475,40 @@ Function Main {
     #$arrGroupsWithinDomainsUniqueNoCompsMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomainsUniqueNoCompsMinusParent.csv"
     #$arrGroupsWithinDomainsUniqueUsersONLYMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv"
     $arrGroupsFileName = "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)"
-    $arrGroupsWithinDomainsUniqueUsersONLYMinusParent | Export-Csv "$($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv"
+    $arrGroupsWithinDomainsUniqueUsersONLYMinusParent | Export-Csv "$($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv" -NoTypeInformation
 
-$file = "$($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv" # "20180914-Currie and Brown-UserLookupGroup_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv"
-#$outfile = "($($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParentLowerCase.csv" #"20180914-Currie and Brown-UserLookupGroup_arrGroupsWithinDomainsUniqueUsersONLYMinusParent_lowercase.csv"
-#(Get-Content "$file" -Raw).ToLower() | Out-File "$outfile"
+    $file = "$($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv" # "20180914-Currie and Brown-UserLookupGroup_arrGroupsWithinDomainsUniqueUsersONLYMinusParent.csv"
+    #$outfile = "($($arrGroupsFileName)_arrGroupsWithinDomainsUniqueUsersONLYMinusParentLowerCase.csv" #"20180914-Currie and Brown-UserLookupGroup_arrGroupsWithinDomainsUniqueUsersONLYMinusParent_lowercase.csv"
+    #(Get-Content "$file" -Raw).ToLower() | Out-File "$outfile"
 
-$global:arrLower = @()
+    $global:arrLower = @()
 
-$inputDataSet = Import-Csv $file
+    $inputDataSet = Import-Csv $file
 
-ForEach ($a in $inputDataSet) {
-        # Create a new instance of a .Net object
-        $strDomain = $a.Domain.ToString()
-        $strDomainLower = $strDomain.toLower()
-        #$strDomainLower
+    ForEach ($a in $inputDataSet) {
+            # Create a new instance of a .Net object
+            $strDomain = $a.Domain.ToString()
+            $strDomainLower = $strDomain.toLower()
+            #$strDomainLower
 
-        $strObjectName = $a.ObjectName.ToString()
-        $strObjectNameLower = $strObjectName.toLower()
-        #$strObjectNameLower
+            $strObjectName = $a.ObjectName.ToString()
+            $strObjectNameLower = $strObjectName.toLower()
+            #$strObjectNameLower
 
-        $strObjectType = $a.ObjectType.ToString()
-        $strObjectTypeLower = $strObjectType.toLower()
-        #$strObjectTypeLower
+            $strObjectType = $a.ObjectType.ToString()
+            $strObjectTypeLower = $strObjectType.toLower()
+            #$strObjectTypeLower
                
         
-        $myNewObj= New-Object System.Object
+            $myNewObj= New-Object System.Object
 
-        $myNewObj  | Add-Member -MemberType NoteProperty -Value $strDomainLower -Name Domain
-        $myNewObj  | Add-Member -MemberType NoteProperty -Value $strObjectNameLower -Name ObjectName
-        $myNewObj  | Add-Member -MemberType NoteProperty -Value $strObjectTypeLower -Name ObjectType
-        $global:arrLower += $myNewObj
-}
+            $myNewObj  | Add-Member -MemberType NoteProperty -Value $strDomainLower -Name Domain
+            $myNewObj  | Add-Member -MemberType NoteProperty -Value $strObjectNameLower -Name ObjectName
+            $myNewObj  | Add-Member -MemberType NoteProperty -Value $strObjectTypeLower -Name ObjectType
+            $global:arrLower += $myNewObj
+    }
 
-#Remove Duplicates
+    #Remove Duplicates
     $arrLowerUnique = $arrLower | Select Domain, objectName, ObjectType, ParentObject -Unique 
     #$arrLowerUniqueNoComps = $arrLowerUnique | Where-Object -Property ObjectType -Ne "Computer" 
     $arrLowerUniqueUsersONLY  = $arrLowerUnique | Where-Object -Property ObjectType -eq "user"
@@ -622,7 +518,7 @@ ForEach ($a in $inputDataSet) {
     $arrLowerUniqueUsersONLYMinusParent  = $arrLowerUniqueMinusParent | Where-Object -Property ObjectType -eq "user"
     #Output Heading
 
- #Export
+    #Export
     #$arrLower | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLower.csv"
  
     #$arrLowerUnique | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUnique.csv"
@@ -632,17 +528,17 @@ ForEach ($a in $inputDataSet) {
     #$arrLowerUniqueMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueMinusParent.csv"
     #$arrLowerUniqueNoCompsMinusParent | Export-Csv "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueNoCompsMinusParent.csv"
     $ExportCSVfilename = "$(get-date -Format yyyyMMdd)-$($customerName)-$($initialGroup)_arrLowerUniqueUsersONLYMinusParent.csv"
-    $arrLowerUniqueUsersONLYMinusParent | Export-Csv $ExportCSVfilename 
+    $arrLowerUniqueUsersONLYMinusParent | Export-Csv $ExportCSVfilename -NoTypeInformation
     $ExportCSVfilename
 
 
-#Upload to dropbox
-#Start-Sleep -Seconds 3
-#. .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
+    #Upload to dropbox
+    #Start-Sleep -Seconds 3
+    #. .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
 
-#Upload to SFTP
-Start-Sleep -Seconds 3
-Send-SFTPData -sourceFiles $ExportCSVfilename -credential $SFTPCreds -SFTProotDir "/licensing"
+    #Upload to SFTP
+    Start-Sleep -Seconds 3
+    Send-SFTPData -sourceFiles $ExportCSVfilename -credential $SFTPCreds -SFTProotDir "/licensing"
  
 } #End Main
 Function Test-Cred {
