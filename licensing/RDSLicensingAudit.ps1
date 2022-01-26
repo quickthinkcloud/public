@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20220126.4
+$scriptVersion = 20220126.5
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -207,6 +207,7 @@ Function RecursivelyEnumerateGroupObjects {
         Write-Host $currentObjClass -ForegroundColor Yellow
         Write-Host "currentObjName: " -NoNewline
         Write-Host $currentObjName.sAMAccountName -ForegroundColor Yellow
+        Write-Host ""
 
         #String Splitting:
         $tempString = $currentObjName.sAMAccountName
@@ -221,7 +222,7 @@ Function RecursivelyEnumerateGroupObjects {
         {
         #"foreignSecurityPrincipal" {$currentObjName}
         "user" {
-            write-host "It's a user..." -ForegroundColor Yellow
+            #write-host "It's a user..." -ForegroundColor Yellow
             $varMyLocalADUser = Get-ADUser -Identity "$($currentObj.objectSid)" -properties * # | select *name*, *abl*
             if($varMyLocalADUser.Enabled -eq $True) {
                 # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
@@ -242,11 +243,11 @@ Function RecursivelyEnumerateGroupObjects {
             }#End if
         } # end user
         "group" {
-            write-host "Group..." -ForegroundColor Cyan
+            #write-host "Group..." -ForegroundColor Cyan
             RecursivelyEnumerateGroupObjects($currentObj.Name)
         } #End of "group"
         "foreignSecurityPrincipal" {
-            write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
+            #write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
             $grpName = $tempGroup
 
             $discoveredDomainOfADDomain = $tempDomain #"EU"
