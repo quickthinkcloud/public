@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20220126
+$scriptVersion = 20220126.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -201,9 +201,12 @@ Function RecursivelyEnumerateGroupObjects {
         $currentObjClass = $currentObj.ObjectClass
         $currentObjName = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
  
-        "currentObjSID = $($currentObjSID)"
-        "currentObjClass = $($currentObjClass)"
-        "currentObjName = $($currentObjName)"
+        Write-Host "currentObjSID: " -NoNewline
+        Write-Host $currentObjSID
+        Write-Host "currentObjClass: " -NoNewline
+        Write-Host $currentObjClass
+        Write-Host "currentObjName: " -NoNewline
+        Write-Host $currentObjName
 
         #String Splitting:
         $tempString = $currentObjName.sAMAccountName
