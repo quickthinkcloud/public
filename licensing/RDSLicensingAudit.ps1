@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20220126.2
+$scriptVersion = 20220126.3
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -206,7 +206,7 @@ Function RecursivelyEnumerateGroupObjects {
         Write-Host "currentObjClass: " -NoNewline
         Write-Host $currentObjClass
         Write-Host "currentObjName: " -NoNewline
-        Write-Host $currentObjName
+        Write-Host $currentObjName.sAMAccountName
 
         #String Splitting:
         $tempString = $currentObjName.sAMAccountName
