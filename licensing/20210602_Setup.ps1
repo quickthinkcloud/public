@@ -1,4 +1,8 @@
-﻿cd C:\QTCScripts\Scheduled\LicenseAudit
+﻿#$env:PSModulePath
+#Remove-Module posh-ssh
+#Get-InstalledModule posh-ssh | Uninstall-Module -Force -Verbose
+
+cd C:\QTCScripts\Scheduled\LicenseAudit
 Add-DnsServerResourceRecordA -Name "QTCServices" -ZoneName "myqtcloud.com" -IPv4Address "213.39.63.77"
 Add-DnsServerResourceRecordCName -Name "VILLEFORT" -HostNameAlias "QTCServices.myqtcloud.com." -ZoneName "myqtcloud.com"
 
