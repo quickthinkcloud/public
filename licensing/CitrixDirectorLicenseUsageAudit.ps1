@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20220104
+$scriptVersion = 20220503
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):CitrixDirectorLicensingUsageAudit Started (scriptVersion: $($scriptVersion))"
 #Import-Module Citrix*
@@ -135,6 +135,7 @@ $connections = $connectiondata.content.properties
 get-date -Format yyyy-MM-dd
 $year = get-date -Format yyyy
 $currentMonth = get-date -Format MM
+$currentDay = get-date -Format dd
 if ($currentMonth -eq "01" ){
     write-host "rolling back a year and setting month to 12" -ForegroundColor Yellow
     $lastyear = $year -1 # last year
@@ -151,14 +152,19 @@ if ($currentMonth -eq "01" ){
 # $currentMonth
 # $lastMonth
 
-
 write-host "Please select an option"
 write-host "1. Last Month"
 write-host "2. This Month"
 write-host "3. Manual input year and month"
 write-host ""
 #$userinput = read-host -Prompt "Option"
-$userinput = 2
+
+If ($currentDay -le "03") {
+    $userinput = 1
+} else {
+    $userinput = 2
+} # end if else
+
 write-host "$($userinput) selected." -ForegroundColor Yellow
 switch ($userinput)
 {
