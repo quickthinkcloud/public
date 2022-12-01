@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20220126.5
+$scriptVersion = 20221201
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -223,23 +223,28 @@ Function RecursivelyEnumerateGroupObjects {
         #"foreignSecurityPrincipal" {$currentObjName}
         "user" {
             #write-host "It's a user..." -ForegroundColor Yellow
-            $varMyLocalADUser = Get-ADUser -Identity "$($currentObj.objectSid)" -properties * # | select *name*, *abl*
-            if($varMyLocalADUser.Enabled -eq $True) {
+            if($varMyLocalADUser.Enabled) {
                 # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
-       
-                #write-host "user"
-                $currentObj.Name
-                # Create a new instance of a .Net object
-                $currentAdObject = New-Object System.Object
+
+                if ($varMyLocalADUser.lastLogonDate -le [DateTime]::Now.AddDays(-31)) {
+
+                    #write-host "user"
+                    $currentObj.Name
+                    # Create a new instance of a .Net object
+                    $currentAdObject = New-Object System.Object
  
-                # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
-                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
-                $currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
-                #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
-                $global:arrGroupsWithinDomains += $currentAdObject
-                #write-host "end of user"    
+                    # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
+                    $currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
+                    #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
+                    $global:arrGroupsWithinDomains += $currentAdObject
+                    #write-host "end of user"    
+
+
+                } # end if 
+              
             }#End if
         } # end user
         "group" {
@@ -259,7 +264,7 @@ Function RecursivelyEnumerateGroupObjects {
                     #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
                     #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
                     Try { #If it's a user...
-                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         ForEach ($fspMem in $fspMembers) { 
                             #String Splitting:
