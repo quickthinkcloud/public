@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20221201
+$scriptVersion = 20221202
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -223,10 +223,11 @@ Function RecursivelyEnumerateGroupObjects {
         #"foreignSecurityPrincipal" {$currentObjName}
         "user" {
             #write-host "It's a user..." -ForegroundColor Yellow
+            
             if($varMyLocalADUser.Enabled) {
                 # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
 
-                if ($varMyLocalADUser.lastLogonDate -le [DateTime]::Now.AddDays(-31)) {
+                #if ($varMyLocalADUser.lastLogonDate -ge [DateTime]::Now.AddDays(-31)) {
 
                     #write-host "user"
                     $currentObj.Name
@@ -243,7 +244,7 @@ Function RecursivelyEnumerateGroupObjects {
                     #write-host "end of user"    
 
 
-                } # end if 
+                #} # end if 
               
             }#End if
         } # end user
@@ -264,7 +265,8 @@ Function RecursivelyEnumerateGroupObjects {
                     #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
                     #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
                     Try { #If it's a user...
-                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true)} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         ForEach ($fspMem in $fspMembers) { 
                             #String Splitting:
