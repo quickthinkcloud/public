@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20221205
+$scriptVersion = 20221205.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -291,7 +291,7 @@ Function RecursivelyEnumerateGroupObjects {
                             $global:arrGroupsWithinDomains += $currentAdObject
                         }
                     } Catch { #if it's not a user...
-                        Try {
+                        <#Try {
                             #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
                             $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
                             #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
@@ -334,6 +334,7 @@ Function RecursivelyEnumerateGroupObjects {
                             #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
                             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
                         } # End Try Catch
+                        #>
                     } # End Try Catch
                 } # End if
             } #End foreach
