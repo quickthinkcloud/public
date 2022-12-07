@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20221205.2
+$scriptVersion = 20221207.5
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -158,6 +158,12 @@ Function RecursivelyEnumerateGroupObjects {
     if ($firstRun -ne 1) {
         ##Create a blank array
         $global:parentGrpName = ""
+        
+        #$global:arrGroupsWithinDomains = @()
+
+        #$localDomain = Get-ADDomain
+        #Write-Host "Starting domain: $($localDomain.NetBIOSname)" 
+
         $global:firstRun = 1
 
     } # End If
@@ -255,6 +261,8 @@ Function RecursivelyEnumerateGroupObjects {
         } # end user
         "group" {
             #write-host "Group..." -ForegroundColor Cyan
+
+            #$parentGrpName = $grpName
             RecursivelyEnumerateGroupObjects($currentObj.Name)
         } #End of "group"
         "foreignSecurityPrincipal" {
@@ -291,25 +299,64 @@ Function RecursivelyEnumerateGroupObjects {
                             $global:arrGroupsWithinDomains += $currentAdObject
                         }
                     } Catch { #if it's not a user...
-                        <#Try {
+                        Try {
                             #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
                             $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
                             #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
                             ForEach ($fspMem in $fspMembers) { 
-                                #String Splitting:
-                                $tempString = $currentObjName.sAMAccountName
-                                #$tempLength = $tempString.Length
-                                $tempSlash = $tempString.IndexOf("\")
-                                $tempDomain = $tempString.Substring(0,$tempSlash)
-                                $tempGroup = $tempString.Substring($tempSlash+1)
-                                # Create a new instance of a .Net object
-                                $currentAdObject = New-Object System.Object
-                                # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-                                $global:arrGroupsWithinDomains += $currentAdObject
+
+                            #$membersOfFSPGroup = Get-ADUser -Identity $fspMem -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
+
+                            $fspMem
+                            write-host "fspmem output" -ForegroundColor Yellow
+                            
+
+                                if ($fspMem.objectClass -eq "user") {
+                                    Write-Host "fspmem IS a user"
+                                    #$fspmem.samaccountname
+
+
+                                    $fspMemProperties = Get-ADUser $fspmem.samaccountname -Server $rec.FQDN -Credential $DomCreds -properties *
+                                    $fspMemProperties.Name
+                                    $fspMemProperties.SamAccountName
+                                    $fspMemProperties.Enabled
+                                    $fspMemProperties.LastLogonDate
+                                    $fspMemProperties.AccountExpirationDate
+
+#(($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month))))
+
+                                    if ($fspMemProperties.Enabled) {
+
+                                        #String Splitting:
+                                        $tempString = $currentObjName.sAMAccountName
+                                        #$tempLength = $tempString.Length
+                                        $tempSlash = $tempString.IndexOf("\")
+                                        $tempDomain = $tempString.Substring(0,$tempSlash)
+                                        $tempGroup = $tempString.Substring($tempSlash+1)
+                                        # Create a new instance of a .Net object
+                                        $currentAdObject = New-Object System.Object
+                                        # Add user-defined customs members: the records retrieved with the three PowerShell commands
+                                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
+                                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
+                                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
+                                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
+                                        $global:arrGroupsWithinDomains += $currentAdObject
+
+
+
+                                    } Else {
+                                        #pause
+                                    }
+
+
+                                } else {
+                                    Write-Host "fspmem NOT a user"
+                                    $fspmem.samaccountname
+                                }
+
+                                #pause
+
+
                             }
                         } Catch {
                             Write-Host "currentObj: " -NoNewline
@@ -334,7 +381,7 @@ Function RecursivelyEnumerateGroupObjects {
                             #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
                             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
                         } # End Try Catch
-                        #>
+                        #
                     } # End Try Catch
                 } # End if
             } #End foreach
