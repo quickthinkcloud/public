@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20221207.5
+$scriptVersion = 20230124
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -1024,3 +1024,44 @@ Get-SFTPSession
 
 #Get-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
 #Update-QTCFile -filepath "C:\QTCScripts\Scheduled\General\QTCFileUpdator.ps1" -filesourceURL "https://raw.githubusercontent.com/quickthinkcloud/public/master/general/QTCFileUpdator.ps1"
+
+
+
+
+
+### SQL Encryption Check ###
+Add-ADGroupMember SQL_Admins -Members SVC_PSMonitoring
+
+$sqlServers = Get-ADComputer -filter {Name -like "*sql*"} | sort name | select name
+
+
+foreach ($svr in $sqlServers) {
+
+    $svr.name
+
+    Invoke-Command -ComputerName $svr.name -Credential $ctxCreds -ScriptBlock {
+
+        $regKey="HKLM:\SOFTWARE\CentraStage"
+        New-ItemProperty -Path $regKey -Name "Custom18" -Value "" -PropertyType String -ErrorAction SilentlyContinue -force
+
+        $qry = "select name, is_encrypted from sys.databases where (name like '%UBW%' or name like '%agr%')"
+        
+        $result = Invoke-Sqlcmd -ServerInstance localhost -Database master -Query $qry
+
+
+        $output = $result | Out-String
+
+        $output
+        
+        New-ItemProperty -Path $regKey -Name "Custom18" -Value "$($output)" -PropertyType String -ErrorAction SilentlyContinue -force
+
+    } #End invoke-command
+
+
+}
+
+
+
+
+
+
