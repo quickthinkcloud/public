@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230202
+$scriptVersion = 20230202.2
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -234,8 +234,9 @@ Function RecursivelyEnumerateGroupObjects {
 
             #if($varMyLocalADUser.Enabled -eq $True) {
             #Last logged in this month OR Enabled -and not expired last month.
-            if (($varMyLocalADUser.LastLogonDate.month -eq [DateTime]::Now.month) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ($varMyLocalADUser.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) {
-            
+            #if (($varMyLocalADUser.LastLogonDate.month -eq [DateTime]::Now.month) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ($varMyLocalADUser.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) {
+            if (("$($varMyLocalADUser.LastLogonDate.year)$($varMyLocalADUser.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ("$($varMyLocalADUser.AccountExpirationDate.Year)$($varMyLocalADUser.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) {
+
                 # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
 
                 #if ($varMyLocalADUser.lastLogonDate -ge [DateTime]::Now.AddDays(-31)) {
@@ -280,7 +281,8 @@ Function RecursivelyEnumerateGroupObjects {
                     Try { #If it's a user...
                         #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                        $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (("$($_.LastLogonDate.year)$($_.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
                         ForEach ($fspMem in $fspMembers) { 
                             #String Splitting:
 	                        $tempString = $currentObjName.sAMAccountName
