@@ -1028,38 +1028,38 @@ Get-SFTPSession
 
 
 
+if ($SBWCust) {
+    ### SQL Encryption Check ###
+    Add-ADGroupMember SQL_Admins -Members SVC_PSMonitoring
 
-### SQL Encryption Check ###
-Add-ADGroupMember SQL_Admins -Members SVC_PSMonitoring
-
-$sqlServers = Get-ADComputer -filter {Name -like "*sql*"} | sort name | select name
+    $sqlServers = Get-ADComputer -filter {Name -like "*sql*"} | sort name | select name
 
 
-foreach ($svr in $sqlServers) {
+    foreach ($svr in $sqlServers) {
 
-    $svr.name
+        $svr.name
 
-    Invoke-Command -ComputerName $svr.name -Credential $ctxCreds -ScriptBlock {
+        Invoke-Command -ComputerName $svr.name -Credential $ctxCreds -ScriptBlock {
 
-        $regKey="HKLM:\SOFTWARE\CentraStage"
-        New-ItemProperty -Path $regKey -Name "Custom18" -Value "" -PropertyType String -ErrorAction SilentlyContinue -force
+            $regKey="HKLM:\SOFTWARE\CentraStage"
+            New-ItemProperty -Path $regKey -Name "Custom18" -Value "" -PropertyType String -ErrorAction SilentlyContinue -force
 
-        $qry = "select name, is_encrypted from sys.databases where (name like '%UBW%' or name like '%agr%')"
+            $qry = "select name, is_encrypted from sys.databases where (name like '%UBW%' or name like '%agr%')"
         
-        $result = Invoke-Sqlcmd -ServerInstance localhost -Database master -Query $qry
+            $result = Invoke-Sqlcmd -ServerInstance localhost -Database master -Query $qry
 
 
-        $output = $result | Out-String
+            $output = $result | Out-String
 
-        $output
+            $output
         
-        New-ItemProperty -Path $regKey -Name "Custom18" -Value "$($output)" -PropertyType String -ErrorAction SilentlyContinue -force
+            New-ItemProperty -Path $regKey -Name "Custom18" -Value "$($output)" -PropertyType String -ErrorAction SilentlyContinue -force
 
-    } #End invoke-command
+        } #End invoke-command
 
 
-}
-
+    }
+} # End if SBW
 
 
 
