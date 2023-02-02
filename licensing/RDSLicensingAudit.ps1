@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230124
+$scriptVersion = 20230202
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -1028,7 +1028,7 @@ Get-SFTPSession
 
 
 
-if ($SBWCust) {
+if (!($SBWCust)) {
     ### SQL Encryption Check ###
     Add-ADGroupMember SQL_Admins -Members SVC_PSMonitoring
 
