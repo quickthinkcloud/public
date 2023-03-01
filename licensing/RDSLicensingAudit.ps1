@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230202.2
+$scriptVersion = 20230301
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -993,8 +993,8 @@ foreach ($rec in $arrTrustedDomainsFromCSV) {
         #Remove-Item $filename
         #pause
       
-        $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
-        Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err"
+        $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit - Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
+        Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err" -EntryType Error
         Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
         #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
         Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
