@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230301
+$scriptVersion = 20230918
 $LogPath = "$($workingDir)LicensingAudit.log"
 Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Started (scriptVersion: $($scriptVersion))"
 
@@ -1013,6 +1013,25 @@ Foreach ($initialGroup in $GroupName) {
     Main($initialGroup) #| Add-Content C:\temp\outputusers.csv    
 }
 Write-Host "Number of trusted domains: $($domTrustsCount)" -ForegroundColor Yellow
+
+
+### EY Microsoft Audit ###
+$EYOutputFolder = "C:\Repository\EY_Output"
+$EYOutputZip = "$($customerName)_EY_Output.7z"
+
+If(Test-Path -PathType Container $EYOutputFolder ) {
+    & "C:\Program Files\7-Zip\7z.exe" a $EYOutputZip "$($EYOutputFolder)\*"
+} # End If
+
+Start-Sleep -Seconds 60
+
+#$EYOutput = "C:\Repository\$($customerName)_EQ_Output.7z"
+If (Test-Path $EYOutputZip) {
+    Send-SFTPData -sourceFiles "$($EYOutputZip)" -credential $SFTPCreds -SFTProotDir "/licensing"
+    Start-Sleep -Seconds 60
+    Remove-Item $EYOutputZip -Force
+} # End If
+### EY Microsoft Audit ###
 
 
 # Disconnect SFTP session
