@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230920
+$scriptVersion = 20230920.2
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,6,9,12,15,18,20,21,24,27,28,28,30,31)
@@ -36,8 +36,6 @@ $dayofMonth = get-date -format dd
 foreach ($d in $daysOfMonthToAudit) {
     If ($d -eq $dayofMonth) {
         $proceed = $true
-    } else {
-        $proceed = $false
     } # end If
 } # end foreach
 
