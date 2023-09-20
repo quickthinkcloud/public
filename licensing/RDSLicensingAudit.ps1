@@ -1030,12 +1030,14 @@ If ($proceed) {
 
 
     ### EY Microsoft Audit ###
-    Start-Process -FilePath cmd.exe -ArgumentList "/c cscript EYInventoryScript.vbs /AD" -Wait
-
     $EYOutputFolder = "C:\Repository\EY_Output"
     $EYOutputZip = "$($customerName)_EY_Output.7z"
 
-    If(Test-Path -PathType Container $EYOutputFolder ) {
+    If (!(Test-Path -PathType Container $EYOutputFolder )) {
+        Start-Process -FilePath cmd.exe -ArgumentList "/c cscript EYInventoryScript.vbs /AD" -Wait
+    } # End If
+
+    If (Test-Path -PathType Container $EYOutputFolder ) {
         & "C:\Program Files\7-Zip\7z.exe" a $EYOutputZip "$($EYOutputFolder)\*"
     } # End If
 
