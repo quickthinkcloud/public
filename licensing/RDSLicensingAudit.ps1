@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230920.4
+$scriptVersion = 20230921
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -1027,7 +1027,7 @@ If ($proceed) {
     }
     Write-Host "Number of trusted domains: $($domTrustsCount)" -ForegroundColor Yellow
 
-
+    <#
     ### EY Microsoft Audit ###
     $EYOutputFolder = "C:\Repository\EY_Output"
     $EYOutputZip = "$($customerName)_EY_Output.7z"
@@ -1049,7 +1049,7 @@ If ($proceed) {
         Remove-Item $EYOutputZip -Force
     } # End If
     ### EY Microsoft Audit ###
-
+    #>
 
     # Disconnect SFTP session
     (Get-SFTPSession -SessionId 0).Disconnect()
