@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230921
+$scriptVersion = 20231001
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -491,7 +491,7 @@ If ($proceed) {
         )
     
         #Set List of QTC users  (QTC ADMINS)
-        $qtcUserArray = "chris.phillips","david.barrett","ian.witts","luke.kinson","stephen.wilding","QTCTEST"
+        $qtcUserArray = "chris.phillips","david.barrett","ian.witts","luke.kinson","stephen.wilding","QTCTEST","steffan.thomas"
         Write-Host "Group: $grpName" -ForegroundColor Green
  
         #Get local domain NETBIOS name
@@ -610,7 +610,7 @@ If ($proceed) {
         $arrLowerUniqueUsersONLYMinusParent | Export-Csv $ExportCSVfilename -NoTypeInformation
         $ExportCSVfilename
 
-
+        Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Created $($ExportCSVfilename)"
         #Upload to dropbox
         #Start-Sleep -Seconds 3
         #. .\dropbox-upload.ps1 $ExportCSVfilename  "/$($ExportCSVfilename)"
@@ -880,6 +880,8 @@ If ($proceed) {
     UpdatesAvailable
     Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
     $SourcePath = "$($updateDirectoryName)\$($updatedVersionName)"
+
+    Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Self-Update Check/Complete."
     ### END OF SELF UPDATER SECTION ###
 
 
@@ -1065,8 +1067,9 @@ If ($proceed) {
 
 
 
-
+    
     if (!($SBWCust)) {
+        Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Checking for Encrypted Databases Starting."
         ### SQL Encryption Check ###
         Add-ADGroupMember SQL_Admins -Members SVC_PSMonitoring
 
@@ -1097,6 +1100,7 @@ If ($proceed) {
 
 
         }
+    Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit Checking for Encrypted Databases Ended."
     } # End if SBW
 } # end If ($proceed)
 
