@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20231001
+$scriptVersion = 20240327
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -620,7 +620,7 @@ If ($proceed) {
         Send-SFTPData -sourceFiles $ExportCSVfilename -credential $SFTPCreds -SFTProotDir "/licensing"
  
     } #End Main
-    Function Test-Cred {
+        Function Test-Cred {
            
         [CmdletBinding()]
         [OutputType([String])] 
@@ -654,10 +654,12 @@ If ($proceed) {
             {
                 $ErrorMsg = $_.Exception.Message
                 Write-Warning "Failed to validate credentials: $ErrorMsg "
+                Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$ErrorMsg" -EntryType Error
+                #Write-host "$ErrorMsg"
                 Pause
                 Break
             }
-        }
+        } # End If
       
         # Checking module
         Try
@@ -667,18 +669,28 @@ If ($proceed) {
             $Password = $credentials.GetNetworkCredential().password
   
             # Get Domain
-            $Root = "LDAP://" + ([ADSI]'').distinguishedName
+            #$Root = "LDAP://" + ([ADSI]'').distinguishedName
+            $Root = "LDAP://DC=CB-INT,DC=NET"
             $Domain = New-Object System.DirectoryServices.DirectoryEntry($Root,$UserName,$Password)
+            $ErrorMsg = "Root = $($Root) - Domain = $($Domain.Path) - Username = $($Username)"
+            Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$ErrorMsg" -EntryType Error
+            #Write-host "$ErrorMsg"
         }
         Catch
         {
             $_.Exception.Message
+            $ErrorMsg = $_.Exception.Message
+            Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$ErrorMsg" -EntryType Error
+            #Write-host "$ErrorMsg"
             Continue
         }
   
         If(!$domain)
         {
             Write-Warning "Something went wrong"
+            $ErrorMsg = "RDSLicensingAudit.ps1 - Test-Cred failed at (!$domain)"
+            Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$ErrorMsg" -EntryType Error
+            #Write-host "$ErrorMsg"
         }
         Else
         {
@@ -688,10 +700,14 @@ If ($proceed) {
             }
             Else
             {
+                $ErrorMsg = "RDSLicensingAudit.ps1 - Test-Cred function failed at Not Authenticated. Domain name = $($domain.name)"
+                Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$ErrorMsg" -EntryType Error
+                #Write-host "$ErrorMsg"
                 return "Not authenticated"
+
             }
         }
-    }
+    } # End Function
     Function UpdatesAvailable {
 
         #check that the destination directory exists
@@ -1000,24 +1016,30 @@ If ($proceed) {
         New-Variable -Name "trustedDom$($i)DomainSID" -Value $currDSID.DomainSID
     
 
-        #Test the Creds
-        $result = Test-Cred $DomCreds
-        if ($result -eq "Not Authenticated") {
-            #Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
-            #Copy-Item -Path $filename -Destination "$($filename)_OLD"
-            #Remove-Item $filename
-            #pause
+        if ($customerCode -eq "CAB") {
+            #skip
+        }
+        Else {
+            #Test the Creds
+            $result = Test-Cred $DomCreds
+            if ($result -eq "Not Authenticated") {
+                #Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
+                #Copy-Item -Path $filename -Destination "$($filename)_OLD"
+                #Remove-Item $filename
+                #pause
       
-            $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit - Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
-            Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err" -EntryType Error
-            Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
-            #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
-            Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
-            Write-host $err -ForegroundColor Red
-            Start-Sleep -Seconds 3
-        } else {
-            Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
-        } #End if
+                $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit - Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
+                Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err" -EntryType Error
+                Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
+                #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
+                Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
+                Write-host $err -ForegroundColor Red
+                Start-Sleep -Seconds 3
+            } else {
+                Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
+            } #End if
+
+        } # End If
 
         Remove-Variable DomCreds
         $i++
