@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20240328
+$scriptVersion = 20240402
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -1000,25 +1000,28 @@ If ($proceed) {
         New-Variable -Name "trustedDom$($i)DomainSID" -Value $currDSID.DomainSID
     
 
-        #Test the Creds
-        $result = Test-Cred $DomCreds
-        if ($result -eq "Not Authenticated") {
-            #Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
-            #Copy-Item -Path $filename -Destination "$($filename)_OLD"
-            #Remove-Item $filename
-            #pause
+        if ($customerCode -eq "CAB") {
+            #Do nothing
+        } Else {
+            #Test the Creds
+            $result = Test-Cred $DomCreds
+            if ($result -eq "Not Authenticated") {
+                #Write-host "Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials!" -ForegroundColor Red
+                #Copy-Item -Path $filename -Destination "$($filename)_OLD"
+                #Remove-Item $filename
+                #pause
       
-            $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit - Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
-            Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err" -EntryType Error
-            Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
-            #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
-            Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
-            Write-host $err -ForegroundColor Red
-            Start-Sleep -Seconds 3
-        } else {
-            Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
-        } #End if
-
+                $err = "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit - Something went wrong with the credentials for the $($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain - Ctrl-C to quit and try again with the correct credentials! (scriptVersion: $($scriptVersion))"   
+                Write-EventLog -LogName Application -Source "QTC" -EventID 10 -Message "$err" -EntryType Error
+                Add-Content "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" $err
+                #. .\dropbox-upload.ps1 "ERROR_$($customerName)_$($currFQDN.FQDN).LOG"  "/ERROR_$($customerName)_$($currFQDN.FQDN).LOG"
+                Send-SFTPData -sourceFiles "ERROR_$($customerName)_$($currFQDN.FQDN).LOG" -credential $SFTPCreds -SFTProotDir "/licensing"
+                Write-host $err -ForegroundColor Red
+                Start-Sleep -Seconds 3
+            } else {
+                Write-host "$($currFQDN.FQDN) (NETBIOS = $($currNETBIOS.NetBIOS)) domain creds are ok" -ForegroundColor Green
+            } #End if
+        } # End if
         Remove-Variable DomCreds
         $i++
     } #End foreach
