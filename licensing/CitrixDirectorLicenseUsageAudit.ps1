@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20230920
+$scriptVersion = 20240701
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -261,112 +261,115 @@ If ($proceed) {
     Get-SFTPSession | Remove-SFTPSession
     Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Logins.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
 
-
-    $mycounter = 0
-    $global:arrCitrixUsersAndSessions = @()
-    Foreach ($sess in $sessionDate1) {
+    if ($dayofMonth -eq 3) {
+        $mycounter = 0
+        $global:arrCitrixUsersAndSessions = @()
+        Foreach ($sess in $sessionDate1) {
     
-        #Create variables and set the value to $null    
-        $sessUserID = $null
-        $sessStartDate = $null
-        $sessStartDate2 = $null
-        $sessConnectionID = $null
-        $userName = $null
-        $fullName = $null
-        $sid = $null
-        $ClientAddress = $null
-        $ClientName = $null
-        $ConnectedViaHostName = $null
-        $LaunchedViaHostName = $null
-        $ConnectedViaIPAddress = $null
-        $LaunchedViaIPAddress = $null
+            #Create variables and set the value to $null    
+            $sessUserID = $null
+            $sessStartDate = $null
+            $sessStartDate2 = $null
+            $sessConnectionID = $null
+            $userName = $null
+            $fullName = $null
+            $sid = $null
+            $ClientAddress = $null
+            $ClientName = $null
+            $ConnectedViaHostName = $null
+            $LaunchedViaHostName = $null
+            $ConnectedViaIPAddress = $null
+            $LaunchedViaIPAddress = $null
 
-        #get the session info
-        $sessUserID = $sess.Userid.InnerText
-        $sessStartDate = $sess.StartDate.InnerText
-        $sessStartDate2 = get-date($sessStartDate) -Format u
-        $sessConnectionID = $sess.CurrentConnectionId.InnerText
-        #$sessConnectionID
+            #get the session info
+            $sessUserID = $sess.Userid.InnerText
+            $sessStartDate = $sess.StartDate.InnerText
+            $sessStartDate2 = get-date($sessStartDate) -Format u
+            $sessConnectionID = $sess.CurrentConnectionId.InnerText
+            #$sessConnectionID
 
-        #get the user info
-        $userName = $users | where {$_.Id.InnerText -eq $sessUserID} | select username
-        $fullName= $users | where {$_.Id.InnerText -eq $sessUserID} | select fullname
-        $sid = $users | where {$_.Id.InnerText -eq $sessUserID} | select sid
+            #get the user info
+            $userName = $users | where {$_.Id.InnerText -eq $sessUserID} | select username
+            $fullName= $users | where {$_.Id.InnerText -eq $sessUserID} | select fullname
+            $sid = $users | where {$_.Id.InnerText -eq $sessUserID} | select sid
     
-        #get the connection info
-        $ClientAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientAddress
-        $ClientName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientName
-        $ConnectedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaHostName
-        $LaunchedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaHostName
-        $ConnectedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaIPAddress
-        $LaunchedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaIPAddress
+            #get the connection info
+            $ClientAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientAddress
+            $ClientName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ClientName
+            $ConnectedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaHostName
+            $LaunchedViaHostName = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaHostName
+            $ConnectedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select ConnectedViaIPAddress
+            $LaunchedViaIPAddress = $connections| where {$_.Id.InnerText -eq $sessConnectionID }  | select LaunchedViaIPAddress
 
-        #$ClientAddress.ClientAddress
-        #$ClientName.ClientName
+            #$ClientAddress.ClientAddress
+            #$ClientName.ClientName
     
-        # Create a new instance of a .Net object
-        $currentCitrixUserSessionObject = New-Object System.Object
+            # Create a new instance of a .Net object
+            $currentCitrixUserSessionObject = New-Object System.Object
     
-        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-        #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $sess.StartDate.InnerText -Name SessionStartDate
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $sessStartDate2 -Name SessionStartDate
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $userName.UserName -Name UserName
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $fullName.FullName -Name FullName
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientAddress.ClientAddress -Name ClientAddress
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientName.ClientName -Name ClientName
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaHostName.ConnectedViaHostName -Name ConnectedViaHostName
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaHostName.LaunchedViaHostName -Name LaunchedViaHostName
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaIPAddress.ConnectedViaIPAddress -Name ConnectedViaIPAddress
-        $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaIPAddress.LaunchedViaIPAddress -Name LaunchedViaIPAddress
-        $global:arrCitrixUsersAndSessions += $currentCitrixUserSessionObject  
+            # Add user-defined customs members: the records retrieved with the three PowerShell commands
+            #$currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $sess.StartDate.InnerText -Name SessionStartDate
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $sessStartDate2 -Name SessionStartDate
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $userName.UserName -Name UserName
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $fullName.FullName -Name FullName
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientAddress.ClientAddress -Name ClientAddress
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ClientName.ClientName -Name ClientName
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaHostName.ConnectedViaHostName -Name ConnectedViaHostName
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaHostName.LaunchedViaHostName -Name LaunchedViaHostName
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $ConnectedViaIPAddress.ConnectedViaIPAddress -Name ConnectedViaIPAddress
+            $currentCitrixUserSessionObject | Add-Member -MemberType NoteProperty -Value $LaunchedViaIPAddress.LaunchedViaIPAddress -Name LaunchedViaIPAddress
+            $global:arrCitrixUsersAndSessions += $currentCitrixUserSessionObject  
     
-        $mycounter += 1
-        write-host "$($mycounter)/$(($sessionDate1).count) : $($currentCitrixUserSessionObject.SessionStartDate) $($currentCitrixUserSessionObject.UserName) $($currentCitrixUserSessionObject.FullName) $($currentCitrixUserSessionObject.ClientAddress) $($currentCitrixUserSessionObject.ClientName) "
-        #pause
-    }
-    #$global:arrCitrixUsersAndSessions | ft
+            $mycounter += 1
+            write-host "$($mycounter)/$(($sessionDate1).count) : $($currentCitrixUserSessionObject.SessionStartDate) $($currentCitrixUserSessionObject.UserName) $($currentCitrixUserSessionObject.FullName) $($currentCitrixUserSessionObject.ClientAddress) $($currentCitrixUserSessionObject.ClientName) "
+            #pause
+        }
+        #$global:arrCitrixUsersAndSessions | ft
 
-    #$sessions[1].Userid.InnerText
-    #$sessions[1].StartDate.InnerText
-    ##$users[1].id.InnerText
-    #$users | where {$_.Id.InnerText -eq $sessions[1].Userid.InnerText} | select username, fullname, Sid
-    #$thedate = $sessions[1].StartDate.InnerText #.ToDateTime("YYYY-MM-DD hh:mm:ss")
-    #get-date($thedate) -Format u
-    #$sessStartDate = $sessionDate1[1].StartDate.InnerText
-    <#$sessions[1].SessionKey
-    $sessions[1].StartDate
-    $sessions[1].LogOnDuration
-    $sessions[1].EndDate
-    $sessions[1].ExitCode
-    $sessions[1].FailureDate
-    $sessions[1].ConnectionState
-    $sessions[1].ConnectionStateChangeDate
-    $sessions[1].LifecycleState
-    $sessions[1].CurrentConnectionId
-    $sessions[1].UserId
-    $sessions[1].MachineId
-    $sessions[1].CreatedDate
-    $sessions[1].ModifiedDate
-    $machines
-    $sessConnectionID = $sessions[1].CurrentConnectionId
-    $sessions[1].CurrentConnectionId
-    $connections| where {$_.Id.InnerText -eq $sessions[1].CurrentConnectionId} # | select username
-    $connections| where {$_.Id -eq $sessConnectionID }  | select ClientAddress
-    $connections| where {$_.Id -eq $sessConnectionID }  | select ClientName
-
-
-    #>
+        #$sessions[1].Userid.InnerText
+        #$sessions[1].StartDate.InnerText
+        ##$users[1].id.InnerText
+        #$users | where {$_.Id.InnerText -eq $sessions[1].Userid.InnerText} | select username, fullname, Sid
+        #$thedate = $sessions[1].StartDate.InnerText #.ToDateTime("YYYY-MM-DD hh:mm:ss")
+        #get-date($thedate) -Format u
+        #$sessStartDate = $sessionDate1[1].StartDate.InnerText
+        <#$sessions[1].SessionKey
+        $sessions[1].StartDate
+        $sessions[1].LogOnDuration
+        $sessions[1].EndDate
+        $sessions[1].ExitCode
+        $sessions[1].FailureDate
+        $sessions[1].ConnectionState
+        $sessions[1].ConnectionStateChangeDate
+        $sessions[1].LifecycleState
+        $sessions[1].CurrentConnectionId
+        $sessions[1].UserId
+        $sessions[1].MachineId
+        $sessions[1].CreatedDate
+        $sessions[1].ModifiedDate
+        $machines
+        $sessConnectionID = $sessions[1].CurrentConnectionId
+        $sessions[1].CurrentConnectionId
+        $connections| where {$_.Id.InnerText -eq $sessions[1].CurrentConnectionId} # | select username
+        $connections| where {$_.Id -eq $sessConnectionID }  | select ClientAddress
+        $connections| where {$_.Id -eq $sessConnectionID }  | select ClientName
 
 
-    #Session output
-    $global:arrCitrixUsersAndSessions
-    $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv"
+        #>
 
-    #Upload to dropbox
-    Start-Sleep -Seconds 3
-    #. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
 
-    Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
+        #Session output
+        $global:arrCitrixUsersAndSessions
+        $global:arrCitrixUsersAndSessions | export-csv "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv"
+
+        #Upload to dropbox
+        Start-Sleep -Seconds 3
+        #. .\dropbox-upload.ps1 "$($workingDir)$($date) - $($customerName) - Citrix Sessions.csv" "/$($date) - $($customerName) - Citrix Sessions.csv"
+
+        Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Sessions.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
+    
+    } #End if ($dayofMonth -eq 3)
+
     # Disconnect SFTP session
     (Get-SFTPSession -SessionId 0).Disconnect()
     Get-SFTPSession
