@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20240701
+$scriptVersion = 20241122
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -177,7 +177,7 @@ If ($proceed) {
     If ($currentDay -le "03") {
         $userinput = 1
     } else {
-        $userinput = 1
+        $userinput = 2
     } # end if else
 
     write-host "$($userinput) selected." -ForegroundColor Yellow
