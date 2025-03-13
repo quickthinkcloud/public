@@ -12,6 +12,7 @@ New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorActi
 # START https://bit.ly/2TyggcW
 START https://cutt.ly/QTCBSInitial
 #>
+#Version 20250313
 
 Start-Transcript c:\repository\bs_install.txt -Append
 ### FUNCTIONS ###
@@ -142,7 +143,7 @@ cinst 7zip.install
 #if (Test-PendingReboot) { Invoke-Reboot }
 
 #Basic Software
-cinst adobereader
+#cinst adobereader
 cinst treesizefree
 cinst notepadplusplus
 if (Test-PendingReboot) { Invoke-Reboot }
@@ -192,7 +193,7 @@ if (!(Test-Path "C:\Repository\CentrastageInstallAttempted.txt")) {
 } # end if 
 
 
-# ESET AV
+<# ESET AV
 $esetFile = "C:\Repository\ESETInstaller.7z"
 if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
     New-Item -path C:\Repository -name ESETInstallAttempted.txt -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting ESET installation."
@@ -224,7 +225,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
         Remove-Item C:\Repository\ESETInstaller.exe -Force
     } # end if
 } # end if
-# END of ESET AV
+#>  END of ESET AV
 
 <#Set Ciphers to QTC Best Practice
 Write-Host "Downloading Nartac"
