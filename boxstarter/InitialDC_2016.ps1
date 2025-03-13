@@ -225,7 +225,7 @@ if (!(Test-Path "C:\Repository\ESETInstallAttempted.txt")) {
         Remove-Item C:\Repository\ESETInstaller.exe -Force
     } # end if
 } # end if
-#>  END of ESET AV
+#># END of ESET AV
 
 <#Set Ciphers to QTC Best Practice
 Write-Host "Downloading Nartac"
