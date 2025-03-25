@@ -1130,7 +1130,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1216,7 +1220,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_AMSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_AMSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_AMSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_AMSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -1232,7 +1240,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1318,7 +1330,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_RESRATELastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_RESRATELastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } 
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_RESRATELastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_RESRATELastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -1334,7 +1350,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } 
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1420,7 +1440,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_DWSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_DWSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } 
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_DWSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_DWSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -1436,7 +1460,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1522,7 +1550,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_IMSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_IMSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_IMSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_IMSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -1538,7 +1570,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } 
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1625,7 +1661,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_AINAPSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_AINAPSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_AINAPSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_AINAPSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -1641,7 +1681,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } 
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1865,7 +1909,14 @@ Function Agresso_Reports_Stuck_at_N_or_W {
                 --AND report_name = 'AG01'
                 --ORDER BY date_started desc
                 "
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+    
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+    
+     
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
@@ -1901,41 +1952,29 @@ Function Agresso_Workflow_Service {
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-    Use $AgressoDBName
-    go
-    select * from (
-    select count(*) as totalRows from awftrans
-    where status = 'N'
-    and priority > -1) X
-    where totalRows > $NoWorkflowRows
-    " 
+
+    $sqlQry = "
+        Use $AgressoDBName
+        go
+        select count(*) as totalRows from awftrans
+        where status = 'N' and priority > -1
+        having totalRows > $NoWorkflowRows
+        "
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
     } else {
-        $functionReturnB = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-        Use $AgressoDBName
-        go
-        select Top 100 * from awftrans
-        where status = 'N'
-        and priority > -1
-        " 
-
-        $functionReturnC = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-        Use $AgressoDBName
-        go
-        select * from awftrans
-        where status = 'N'
-        and priority > -1
-        " 
-
-        $functionReturnB | ft
-        $functionReturnB | export-csv $functionOutputCSV
 
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
-        $MsgBody += "Records: " + $functionReturnC.count + " (Please see attached csv for details) `n"
+        $MsgBody += "Records: " + $functionReturn + " (Please see attached csv for details) `n"
         $MsgBody += "`n"
         $MsgBody += "Database Server: $($AgressoDBServerName) `n"
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
@@ -1953,14 +1992,21 @@ Function Agresso_AMS_Service_Email_Queue {
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $dateDiff = $MinsForAMSEmailQueue
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-    Use $AgressoDBName
+
+    $sqlQry = "Use $AgressoDBName
     go
     select max(datediff(minute,created_date,getdate())) as dateDifference 
     from $AgressoDBName.dbo.acrmailqueuehead
     where status in ('N','W')
     having max(datediff(minute,created_date,getdate())) >= $dateDiff
     " 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+    
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
@@ -1988,31 +2034,29 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-Use $AgressoDBName
-go
-select server_name,server_queue,report_name,sequence_no,message 
-from aagprocessinfo 
-where message = 'Technical Error'
-and end_time <> '1900-01-01 00:00:00.000'
-and end_time > dateadd(minute,-5,GETUTCDATE())
-and process_type = 'T'
-" 
+
+    $sqlQry = "Use $AgressoDBName
+        go
+        select top 10 server_name,server_queue,report_name,sequence_no,message 
+        from aagprocessinfo 
+        where message = 'Technical Error'
+        and end_time <> '1900-01-01 00:00:00.000'
+        and end_time > dateadd(minute,-5,GETUTCDATE())
+        and process_type = 'T'
+        " 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
     } else {
-        $functionReturnB = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-Use $AgressoDBName
-go
-select top 10 server_queue,report_name,message, start_time, end_time
-from aagprocessinfo 
-where message = 'Technical Error'
-and end_time <> '1900-01-01 00:00:00.000'
-and end_time > dateadd(minute,-5,GETUTCDATE())
-and process_type = 'T'
-" 
-        $functionReturnB = $functionReturnB | ft -autosize | out-string
+        
+        $functionReturn = $functionReturn | ft -autosize | out-string
 
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2021,7 +2065,7 @@ and process_type = 'T'
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
         $MsgBody += "Database Name: $($AgressoDBName) `n"
         $MsgBody += "`n"
-        $MsgBody += $functionReturnB + "`n"
+        $MsgBody += $functionReturn + "`n"
 
         $eventLogID = 9
         $eventLogMessage = $MsgBody
@@ -2036,16 +2080,24 @@ Try{
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-Use $AgressoDBName
-go
-select server_name,server_queue,report_name,sequence_no,message 
-from aagprocessinfo 
-where message = 'Functional Error'
-and end_time <> '1900-01-01 00:00:00.000'
-and end_time > dateadd(minute,-5,GETUTCDATE())
-and process_type = 'T'
-" 
+
+    $sqlQry = "
+        Use $AgressoDBName
+        go
+        select top 10 server_name,server_queue,report_name,sequence_no,message 
+        from aagprocessinfo 
+        where message = 'Functional Error'
+        and end_time <> '1900-01-01 00:00:00.000'
+        and end_time > dateadd(minute,-5,GETUTCDATE())
+        and process_type = 'T'
+        " 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) { # Check OK, reset triggered count and do not alert
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
@@ -2058,17 +2110,8 @@ and process_type = 'T'
         Add-Content -Path $statefile "`$$($functionName)LastTriggeredAlarm = `"$($Process_Functional_ErrorLastTriggeredAlarm)`"" #Updates stateFile to state when it was last triggered
         Add-Content -Path $statefile "`$$($functionName)TriggeredCount = $triggeredCount" #updates the TriggeredCount in the stateFile    
     } else { # Check not OK, trigger threshold reached, ALERT
-        $functionReturnB = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "
-Use $AgressoDBName
-go
-select top 10 server_queue,report_name,message, start_time, end_time
-from aagprocessinfo 
-where message = 'Functional Error'
-and end_time <> '1900-01-01 00:00:00.000'
-and end_time > dateadd(minute,-5,GETUTCDATE())
-and process_type = 'T'
-" 
-        $functionReturnB = $functionReturnB | ft -autosize | out-string
+
+        $functionReturn = $functionReturn | ft -autosize | out-string
 
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2077,9 +2120,9 @@ and process_type = 'T'
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
         $MsgBody += "Database Name: $($AgressoDBName) `n"
         $MsgBody += "`n"
-        $MsgBody += $functionReturnB + "`n"
+        $MsgBody += $functionReturn + "`n"
 
-		$functionReturnB | export-csv $functionOutputCSV
+		$functionReturn | export-csv $functionOutputCSV
         Add-Content $LogPath "$($functionName): ALERTING: Trigger count $triggeredCount, threshold $Process_Functional_ErrorTriggerThreshold"
         Add-Content -Path $statefile "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')`"" #Updates stateFile to state when it was last triggered
         Add-Content -Path $statefile "`$$($functionName)TriggeredCount = $triggeredCount" #updates the TriggeredCount in the stateFile    
@@ -2117,20 +2160,24 @@ Function AMS_Server_Queue {
 	       and message not like '%domain missing%'
 	       and message not like '%UNEXPECTED_RCPT_TO_RESPONSE: 501 Invalid RCPT TO address provided%'
                "
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
 
 
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
     } else {
-        $functionReturnB = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
-        $functionReturnB | ft
-        $functionReturnB | export-csv $functionOutputCSV
+        
+        $functionReturn | ft
+        $functionReturn | export-csv $functionOutputCSV
 
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
-        $MsgBody += "Records: " + $functionReturnB.count + " (Please see attached csv for details) `n"
+        $MsgBody += "Records: " + $functionReturn.count + " (Please see attached csv for details) `n"
         $MsgBody += "`n"
         $MsgBody += "Database Server: $($AgressoDBServerName) `n"
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
@@ -2155,13 +2202,20 @@ Function Check_Backups {
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
+
     $sqlQry = "select * 
 	from master.dbo.commandlog 
 	where commandtype = 'BACKUP_DATABASE' 
 	and databasename = '$AgressoDBName'
 	and errornumber = 0
 	and datediff(hh, endtime, getdate()) < $MaxHoursSinceLastBackup"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
 $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2183,17 +2237,26 @@ $MsgBody = "Date: " + $Date + "`n"
         Add-Content $LogPath "$($functionName): All ok."
     }	
 } #End Function 
+
+
 Function Check_DBCC {
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
+
     $sqlQry = "select * 
 	from master.dbo.commandlog 
 	where commandtype = 'DBCC_CHECKDB' 
 	and databasename = '$AgressoDBName'
 	and errornumber = 0
 	and datediff(hh, endtime, getdate()) < $MaxHoursSinceLastDBCC"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
 $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2220,10 +2283,17 @@ Function Check_DB_Encryption {
     $Date = Get-Date
     $functionName = "$($MyInvocation.MyCommand.Name)"
     $functionOutputCSV = "$($instanceSpecificWorkingDir)\$($functionName).csv"
+
     $sqlQry = "SELECT db_name(database_id), * FROM sys.dm_database_encryption_keys 
 	where database_id = db_id('$AgressoDBName')
 	and encryption_state = 3"
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
 $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2262,7 +2332,12 @@ Function Long_Running_Agresso_Reports {
                 and date_ended != '1900-01-01'
                 order by 3 desc
                 "
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
@@ -2307,7 +2382,12 @@ Function Failed_Agresso_Logins {
                 group by user_id
                 having count(*) >= $FailedAgressoLoginsThreshold
                 "
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
@@ -2351,7 +2431,13 @@ Function Insecure_Agresso_Logins {
                 where s.user_id = u.user_id
                 and s.variant < 4 and u.status = 'N'
                 "
-    $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName <#-Verbose#> -QueryTimeout 3600 -Query "$($sqlQry)" 
+
+    if ($ssmodule22plus) {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"  -TrustServerCertificate
+    } Else {
+        $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+    }
+
     if ($functionReturn.ItemArray.Count -lt 1) {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
