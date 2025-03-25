@@ -56,10 +56,18 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1023"
+$scriptVersion = "20250325_1156"
 
 # Add Modules
 Import-Module sqlserver
+#Update-Module sqlserver
+
+$ssmodule22plus = $false
+$ssmodversion = Get-InstalledModule sqlserver
+if ($ssmodversion.Version.Major -gt 21) {
+    $ssmodule22plus = $true
+}
+
 
 ### STATIC VARIABLS (PRE CONFIG FILE!) ###
 ### GLOBAL VARIABLES ###
@@ -659,7 +667,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_SchedulerLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_SchedulerLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End if else
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_SchedulerLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_SchedulerLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -675,7 +687,12 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } # End if else
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -761,7 +778,12 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_TPSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_TPSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)"
+            } #End if else
+
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_TPSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_TPSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -777,7 +799,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End if else
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -864,7 +890,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_ACRALSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_ACRALSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End if else
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_ACRALSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_ACRALSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -880,7 +910,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End if else
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -966,7 +1000,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_ALGIPSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_ALGIPSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End if else
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_ALGIPSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_ALGIPSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
@@ -982,7 +1020,11 @@ AND server_name = '$AgressoLogicalServerName'
         else #Run the Check
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking..." -ForegroundColor Green # Log to Screen
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            }
             if ($functionReturn.ItemArray.Count -lt 1) #All OK
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): All ok." # Log to Screen
@@ -1068,7 +1110,11 @@ AND server_name = '$AgressoLogicalServerName'
         {
             Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as as alerted too recently; at $($UBW_Queue_ALGSPSLastTriggeredAlarm)." -ForegroundColor Red # Log to Screen
             Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName): Checking but NO alert as alerted too recently; at $($UBW_Queue_ALGSPSLastTriggeredAlarm)." # Log to LogFile
-            $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            if ($ssmodule22plus) {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" -TrustServerCertificate
+            } Else {
+                $functionReturn = Invoke-Sqlcmd -ServerInstance $AgressoDBServerName -QueryTimeout 3600 -Query "$($sqlQry)" 
+            } #End If else
             if ($functionReturn.ItemArray.Count -lt 1) #Self resolved
             {
                 Write-Host "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):$($functionName) alert last triggered at $($UBW_Queue_ALGSPSLastTriggeredAlarm) but has subsequently resolved/cleared. This check will resume on the next run." # $((Get-Date($UBW_Queue_ALGSPSLastTriggeredAlarm)).Addhours($numHoursToReArm))" # Log to Screen
