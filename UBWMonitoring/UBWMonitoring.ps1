@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1352"
+$scriptVersion = "20250325_1737"
 
 # Add Modules
 Import-Module sqlserver
@@ -1961,7 +1961,7 @@ Function Agresso_Workflow_Service {
         go
         select count(*) as totalRows from awftrans
         where status = 'N' and priority > -1
-        having totalRows > $NoWorkflowRows
+        having count(*) > $NoWorkflowRows
         "
 
     if ($ssmodule22plus) {
