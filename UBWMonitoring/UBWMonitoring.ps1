@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1323"
+$scriptVersion = "20250325_1334"
 
 # Add Modules
 Import-Module sqlserver
@@ -2587,7 +2587,7 @@ Check_DBCC
 Check_DB_Encryption
 Long_Running_Agresso_Reports
 Failed_Agresso_Logins
-if ($checkForInsecureLogins) {Insecure_Agresso_Logins}
+if ($checkForInsecureLogins) {Insecure_Agresso_Logins} Else {Add-Content $LogPath "Insecure_Agresso_Logins: Check Skipped! - Manually Disabled. Please check config file for `$checkForInsecureLogins = `$false"}
 
 
 #Script finished
