@@ -2364,7 +2364,7 @@ write-host "workingDir updated to: $($workingDir)"
 $scriptName = "UBWMonitoring.ps1"
 $updateDirectoryName = "UBWMonitoringUpdates"
 $updatedVersionName = "UBWMonitoring_latest.ps1"
-$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/master/licensing/RDSLicensingAudit.ps1"
+$scriptSourceURL = "https://raw.githubusercontent.com/quickthinkcloud/public/refs/heads/master/UBWMonitoring/UBWMonitoring.ps1"
 
 UpdatesAvailable
 Update-Myself "$($updateDirectoryName)\$($updatedVersionName)"
