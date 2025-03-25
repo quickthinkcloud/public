@@ -1,4 +1,4 @@
-﻿$scriptVersion = "20250325_1341"
+﻿$scriptVersion = "20250325_1352"
 
 ### GLOBAL VARIABLES ###
 ## USER CONFIGURED VARIABLES ##
@@ -48,6 +48,8 @@ $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long
 #AgressoLogins Variables
 $MinsToMonitorFailedAgressoLogins = 60 #30 Number of minutes before now to monitor failed Agresso logins
 $FailedAgressoLoginsThreshold = 5 #5 Number of failed login attempts before alarm is triggered
+$checkForBackups = $true
+$checkForDBCC = $true
 $checkForDBEncryption = $true
 $checkForInsecureLogins = $true
 ## END OF USER CONFIGURED VARIABLES ##
