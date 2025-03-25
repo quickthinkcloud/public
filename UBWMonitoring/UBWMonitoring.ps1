@@ -117,7 +117,7 @@ $FailedAgressoLoginsThreshold = 5 #5 Number of failed login attempts before alar
 . .\$ConfigFile
 
 ## ADMIN/SRIPT WRITER VARIABLES ##
-$UBWMonitoringScriptVersion = 20201210
+$UBWMonitoringScriptVersion = $scriptVersion
 $scriptName = $MyInvocation.MyCommand.Name #Returns the Script name (or function name if called from within a function)
 $scriptNameNoExt = $scriptName.Split(".",2) | Select -First 1
 $configFileNoExt = $ConfigFile.Split(".",2) | Select -First 1
