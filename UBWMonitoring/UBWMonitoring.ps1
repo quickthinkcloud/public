@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1248"
+$scriptVersion = "20250325_1323"
 
 # Add Modules
 Import-Module sqlserver
@@ -118,7 +118,7 @@ $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long
 #AgressoLogins Variables
 $MinsToMonitorFailedAgressoLogins = 30 #30 Number of minutes before now to monitor failed Agresso logins
 $FailedAgressoLoginsThreshold = 5 #5 Number of failed login attempts before alarm is triggered
-
+$checkForInsecureLogins = $true
 ## END OF USER CONFIGURED VARIABLES ##
 
 #Run the config .ps1 to set the variables
@@ -2587,7 +2587,7 @@ Check_DBCC
 Check_DB_Encryption
 Long_Running_Agresso_Reports
 Failed_Agresso_Logins
-Insecure_Agresso_Logins
+if ($checkForInsecureLogins) {Insecure_Agresso_Logins}
 
 
 #Script finished
