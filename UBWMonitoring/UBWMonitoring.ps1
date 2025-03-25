@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1341"
+$scriptVersion = "20250325_1352"
 
 # Add Modules
 Import-Module sqlserver
@@ -118,6 +118,8 @@ $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long
 #AgressoLogins Variables
 $MinsToMonitorFailedAgressoLogins = 30 #30 Number of minutes before now to monitor failed Agresso logins
 $FailedAgressoLoginsThreshold = 5 #5 Number of failed login attempts before alarm is triggered
+$checkForBackups = $true
+$checkForDBCC = $true
 $checkForDBEncryption = $true
 $checkForInsecureLogins = $true
 ## END OF USER CONFIGURED VARIABLES ##
@@ -2583,8 +2585,8 @@ Agresso_AMS_Service_Email_Queue
 Process_Technical_Error
 Process_Functional_Error
 AMS_Server_Queue
-Check_backups
-Check_DBCC
+if ($checkForBackups) {Check_backups} Else {Add-Content $LogPath "Check_backups: Check Skipped! - Manually Disabled. Please check config file for `$checkForBackups = `$false"}
+if ($checkForDBCC) {Check_DBCC} Else {Add-Content $LogPath "Check_DBCC: Check Skipped! - Manually Disabled. Please check config file for `$checkForDBCC = `$false"}
 if ($checkForDBEncryption) {Check_DB_Encryption} Else {Add-Content $LogPath "Check_DB_Encryption: Check Skipped! - Manually Disabled. Please check config file for `$checkForDBEncryption = `$false"}
 Long_Running_Agresso_Reports
 Failed_Agresso_Logins
