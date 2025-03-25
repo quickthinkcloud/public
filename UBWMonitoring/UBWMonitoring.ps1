@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20250325-0941
+$scriptVersion = 20250325-0957
 
 # Add Modules
 Import-Module sqlserver
