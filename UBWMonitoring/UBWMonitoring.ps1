@@ -2060,7 +2060,7 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
         Add-Content $LogPath "$($functionName): All ok."
     } else {
         
-        $functionReturnB = $functionReturn | server_name,server_queue,report_name,sequence_no,message | ft -autosize | out-string
+        $functionReturnB = $functionReturn | select server_name,server_queue,report_name,sequence_no,message | ft -autosize | out-string
         
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
