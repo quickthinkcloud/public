@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250326_1432"
+$scriptVersion = "20250326_1614"
 
 # Add Modules
 Import-Module sqlserver
@@ -2060,8 +2060,8 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
         Add-Content $LogPath "$($functionName): All ok."
     } else {
         
-        $functionReturn = $functionReturn | ft -autosize | out-string
-
+        $functionReturnB = $functionReturn | server_name,server_queue,report_name,sequence_no,message | ft -autosize | out-string
+        
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
         $MsgBody += "`n"
@@ -2069,7 +2069,7 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
         $MsgBody += "Database Name: $($AgressoDBName) `n"
         $MsgBody += "`n"
-        $MsgBody += $functionReturn + "`n"
+        $MsgBody += $functionReturnB + "`n"
 
         $eventLogID = 9
         $eventLogMessage = $MsgBody
