@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250325_1737"
+$scriptVersion = "20250326_1432"
 
 # Add Modules
 Import-Module sqlserver
@@ -1974,10 +1974,11 @@ Function Agresso_Workflow_Service {
         write-host "$($functionName): All ok. `n"
         Add-Content $LogPath "$($functionName): All ok."
     } else {
-
+	
+	$functionReturn = $functionReturn | out-string
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
-        $MsgBody += "Records: " + $functionReturn + " (Please see attached csv for details) `n"
+        $MsgBody += "Records: " + $functionReturn
         $MsgBody += "`n"
         $MsgBody += "Database Server: $($AgressoDBServerName) `n"
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
