@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250327_1639"
+$scriptVersion = "20250327_1655"
 
 # Add Modules
 Import-Module sqlserver
@@ -2060,7 +2060,7 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
         Add-Content $LogPath "$($functionName): All ok."
     } else {
         
-        $functionReturnB = $functionReturn | ft server_name,server_queue,report_name,sequence_no,message -autosize | out-string
+        $functionReturnB = $functionReturn | select server_name,server_queue,report_name,sequence_no,message | out-string
         
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
