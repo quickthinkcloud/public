@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250326_1707"
+$scriptVersion = "20250327_1639"
 
 # Add Modules
 Import-Module sqlserver
@@ -718,8 +718,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -829,8 +829,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -940,8 +940,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1050,8 +1050,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1160,8 +1160,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1270,8 +1270,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1380,8 +1380,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1490,8 +1490,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1600,8 +1600,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1711,8 +1711,8 @@ AND server_name = '$AgressoLogicalServerName'
                 $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
                 $MsgBody += "Database Name: $($AgressoDBName) `n"
                 $MsgBody += "`n"
-                #$MsgBody += "To investigate, please run the following query: `n "
-                #$MsgBody += "$($sqlQry)"
+                $MsgBody += "To investigate, please run the following query: `n "
+                $MsgBody += "$($sqlQry)"
         
                 #if ($outOfHoursMode -eq 1) {
                 #}
@@ -1942,8 +1942,8 @@ Function Agresso_Reports_Stuck_at_N_or_W {
         $MsgBody += "TOP 5 Records:"
 	$MsgBody += "$($functionReturnB)"
         $MsgBody += "`n"
-        #$MsgBody += "To investigate, please run the following query: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "To investigate, please run the following query: `n "
+        $MsgBody += "$($sqlQry)"
 
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 6
@@ -2192,9 +2192,9 @@ Function AMS_Server_Queue {
         $MsgBody += "2. Assign the ticket to the customer for remidial action `n "
         $MsgBody += "3. Close the ticket `n "
         $MsgBody += "`n"
-        #$MsgBody += "Additional Information: `n "
-        #$MsgBody += "SQL query that triggered alert: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "Additional Information: `n "
+        $MsgBody += "SQL query that triggered alert: `n "
+        $MsgBody += "$($sqlQry)"
         
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 10
@@ -2229,8 +2229,8 @@ $MsgBody = "Date: " + $Date + "`n"
         $MsgBody += "`n"
         $MsgBody += "No good backup records found in last $($MaxHoursSinceLastBackup) hours for database, please check backups. `n"
         $MsgBody += "`n"
-        #$MsgBody += "SQL query that triggered alert: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "SQL query that triggered alert: `n "
+        $MsgBody += "$($sqlQry)"
         
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 10
@@ -2270,8 +2270,8 @@ $MsgBody = "Date: " + $Date + "`n"
         $MsgBody += "`n"
         $MsgBody += "No good DBCC records found in last $($MaxHoursSinceLastDBCC) hours for database, please check DBCC checks. `n"
         $MsgBody += "`n"
-        #$MsgBody += "SQL query that triggered alert: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "SQL query that triggered alert: `n "
+        $MsgBody += "$($sqlQry)"
         
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 10
@@ -2307,8 +2307,8 @@ $MsgBody = "Date: " + $Date + "`n"
         $MsgBody += "`n"
         $MsgBody += "Database $($AgressoDBName) is not encrypted, please check if it should be. `n"
         $MsgBody += "`n"
-        #$MsgBody += "SQL query that triggered alert: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "SQL query that triggered alert: `n "
+        $MsgBody += "$($sqlQry)"
         
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 10
@@ -2364,8 +2364,8 @@ Function Long_Running_Agresso_Reports {
         $MsgBody += "TOP 5 Records:"
 	$MsgBody += "$($functionReturnB)"
         $MsgBody += "`n"
-        #$MsgBody += "To investigate, please run the following query: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "To investigate, please run the following query: `n "
+        $MsgBody += "$($sqlQry)"
 
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 6
@@ -2414,8 +2414,8 @@ Function Failed_Agresso_Logins {
         $MsgBody += "TOP 5 Records:"
 	$MsgBody += "$($functionReturnB)"
         $MsgBody += "`n"
-        #$MsgBody += "To investigate, please run the following query: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "To investigate, please run the following query: `n "
+        $MsgBody += "$($sqlQry)"
 
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 6
@@ -2464,8 +2464,8 @@ Function Insecure_Agresso_Logins {
         $MsgBody += "TOP 5 Records:"
 	$MsgBody += "$($functionReturnB)"
         $MsgBody += "`n"
-        #$MsgBody += "To investigate, please run the following query: `n "
-        #$MsgBody += "$($sqlQry)"
+        $MsgBody += "To investigate, please run the following query: `n "
+        $MsgBody += "$($sqlQry)"
 
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
         $eventLogID = 6
