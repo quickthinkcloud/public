@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250327_1655"
+$scriptVersion = "20250328_1154"
 
 # Add Modules
 Import-Module sqlserver
@@ -2041,7 +2041,7 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
 
     $sqlQry = "Use $AgressoDBName
         go
-        select top 10 server_name,server_queue,report_name,sequence_no,message 
+        select top 10 server_name,server_queue,report_name,sequence_no,end_time,message 
         from aagprocessinfo 
         where message = 'Technical Error'
         and end_time <> '1900-01-01 00:00:00.000'
@@ -2060,7 +2060,7 @@ Function Process_Technical_Error { #THIS was previously called TPS_Stopped_Proce
         Add-Content $LogPath "$($functionName): All ok."
     } else {
         
-        $functionReturnB = $functionReturn | select server_name,server_queue,report_name,sequence_no,message | out-string
+        $functionReturnB = $functionReturn | select server_name,server_queue,report_name,sequence_no,end_time,message | out-string
         
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2088,7 +2088,7 @@ Try{
     $sqlQry = "
         Use $AgressoDBName
         go
-        select top 10 server_name,server_queue,report_name,sequence_no,message 
+        select top 10 server_name,server_queue,report_name,sequence_no,end_time,message 
         from aagprocessinfo 
         where message = 'Functional Error'
         and end_time <> '1900-01-01 00:00:00.000'
@@ -2115,7 +2115,7 @@ Try{
         Add-Content -Path $statefile "`$$($functionName)TriggeredCount = $triggeredCount" #updates the TriggeredCount in the stateFile    
     } else { # Check not OK, trigger threshold reached, ALERT
 
-        $functionReturn = $functionReturn | ft -autosize | out-string
+        $functionReturnB = $functionReturn | select server_name,server_queue,report_name,sequence_no,end_time,message | out-string
 
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
@@ -2124,7 +2124,7 @@ Try{
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
         $MsgBody += "Database Name: $($AgressoDBName) `n"
         $MsgBody += "`n"
-        $MsgBody += $functionReturn + "`n"
+        $MsgBody += $functionReturnB + "`n"
 
 		$functionReturn | export-csv $functionOutputCSV
         Add-Content $LogPath "$($functionName): ALERTING: Trigger count $triggeredCount, threshold $Process_Functional_ErrorTriggerThreshold"
