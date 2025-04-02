@@ -45,7 +45,7 @@ $MinsThresholdForLongReports = 30 #Minimum number of mins to consider a report l
 $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long running reports for
 #AgressoLogins Variables
 $MinsToMonitorFailedAgressoLogins = 30 #30 Number of minutes before now to monitor failed Agresso logins
-$FailedAgressoLoginsThreshold = 5 #5 Number of failed login attempts before alarm is triggered
+$FailedAgressoLoginsThreshold = 15 #5 Number of failed login attempts before alarm is triggered
 
 ## END OF USER CONFIGURED VARIABLES ##
 
