@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250402_1540"
+$scriptVersion = "20250407_0948"
 
 # Add Modules
 Import-Module sqlserver
@@ -1933,7 +1933,7 @@ Function Agresso_Reports_Stuck_at_N_or_W {
         #$functionReturn.Get(0) | ft#>
         $MsgBody = "Date: " + $Date + "`n" 
         $MsgBody += "Check: " + $functionName + "`n" 
-        $MsgBody += "Records: " + $functionReturn.count + "`n" 
+        $MsgBody += "Records: " + $functionReturnB.count + "`n" 
         $MsgBody += "`n"
         $MsgBody += "Database Server: $($AgressoDBServerName) `n"
         $MsgBody += "Business Server: $($AgressoLogicalServerName) `n"
@@ -1943,6 +1943,7 @@ Function Agresso_Reports_Stuck_at_N_or_W {
 	$MsgBody += "$($functionReturnB)"
         $MsgBody += "`n"
         $MsgBody += "To investigate, please run the following query: `n "
+        $MsgBody += "`n"
         $MsgBody += "$($sqlQry)"
 
         $stateFileBody += "`$$($functionName)LastTriggeredAlarm = `"$(Get-Date)`"`n"
