@@ -14,7 +14,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20241122
+$scriptVersion = 20250705
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -151,6 +151,12 @@ If ($proceed) {
     $year = get-date -Format yyyy
     $currentMonth = get-date -Format MM
     $currentDay = get-date -Format dd
+    
+    #manual override of day
+    #$year = "2025"
+    #$currentMonth = "05"
+    #$currentDay = "01"
+
     if ($currentMonth -eq "01" ){
         write-host "rolling back a year and setting month to 12" -ForegroundColor Yellow
         $lastyear = $year -1 # last year
@@ -261,7 +267,7 @@ If ($proceed) {
     Get-SFTPSession | Remove-SFTPSession
     Send-SFTPData -sourceFiles "$($date) - $($customerName) - Citrix Logins.csv" -credential $SFTPCreds -SFTProotDir "/licensing"
 
-    if ($dayofMonth -eq 3) {
+    if ($currentDay -le 3) {
         $mycounter = 0
         $global:arrCitrixUsersAndSessions = @()
         Foreach ($sess in $sessionDate1) {
