@@ -56,7 +56,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20250407_0948"
+$scriptVersion = "20250513_0928"
 
 # Add Modules
 Import-Module sqlserver
@@ -119,7 +119,7 @@ $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long
 $MinsToMonitorFailedAgressoLogins = 30 #30 Number of minutes before now to monitor failed Agresso logins
 $FailedAgressoLoginsThreshold = 15 #5 Number of failed login attempts before alarm is triggered
 $checkForBackups = $true
-$checkForDBCC = $true
+$checkForDBCC = $false
 $checkForDBEncryption = $true
 $checkForInsecureLogins = $true
 ## END OF USER CONFIGURED VARIABLES ##
