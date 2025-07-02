@@ -113,7 +113,7 @@ $MinsForAMSEmailQueue = 120 #120
 $MaxHoursSinceLastBackup = 32 #32 Number of hours since last good backup before an alarm is triggered
 $MaxHoursSinceLastDBCC = 32 #32 Number of hours since last good DBCC check before an alarm is triggered
 #LongReports Function Variables
-$MinsThresholdForLongReports = 10 #Minimum number of mins to consider a report long running
+$MinsThresholdForLongReports = 30 #Minimum number of mins to consider a report long running
 $LongReportsMonitorMins = 120  #120 Number of minutes before now to monitor long running reports for
 #AgressoLogins Variables
 $MinsToMonitorFailedAgressoLogins = 30 #30 Number of minutes before now to monitor failed Agresso logins
