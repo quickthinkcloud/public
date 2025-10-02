@@ -12,7 +12,7 @@ New-ItemProperty -Path $winLogonKey -Name "AWSSecretKey" -Value "a/a" -ErrorActi
 # START https://bit.ly/2TyggcW
 START https://cutt.ly/QTCBSInitial
 #>
-#Version 20250313
+#Version 20251002
 
 Start-Transcript c:\repository\bs_install.txt -Append
 ### FUNCTIONS ###
@@ -172,23 +172,23 @@ if (!(Test-Path "C:\QTCScripts\Triggered\readme.txt")) {
 }
 
 
-write-host "About to attempt CS install..."
+write-host "About to attempt Datto install..."
 #pause
 
-# CentraStage
-$centrastageFile = "$($Env:userprofile)\Downloads\CSAgent.exe"
-if (!(Test-Path "C:\Repository\CentrastageInstallAttempted.txt")) {
-    New-Item -path C:\Repository -name CentrastageInstallAttempted.txt -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting Centrastage installation."
+# Datto
+$DattoFile = "$($Env:userprofile)\Downloads\DattoAgent.exe"
+if (!(Test-Path "C:\Repository\DattoInstallAttempted.txt")) {
+    New-Item -path C:\Repository -name DattoInstallAttempted.txt -type "file" -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Attempting Datto installation."
     Write-Host "Created new file and text content added"
-    invoke-webrequest https://merlot.centrastage.net/csm/profile/downloadAgent/d549c035-e426-41f4-95ea-59394a291daf -OutFile $centrastageFile
-    & $centrastageFile
+    invoke-webrequest https://merlot.Datto.net/csm/profile/downloadAgent/d549c035-e426-41f4-95ea-59394a291daf -OutFile $DattoFile
+    & $DattoFile
     Start-Sleep -s 60
 } else {
-    Add-Content -path C:\Repository\CentrastageInstallAttempted.txt -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Detected previous installation attempt - aborting."
+    Add-Content -path C:\Repository\DattoInstallAttempted.txt -value "$(Get-Date -format 'dd/MM/yyyy HH:mm:ss') - Detected previous installation attempt - aborting."
     Write-Host "File already exists and new text content added"
 
-    if (Test-Path $centrastageFile) {
-        Remove-Item $centrastageFile -Force
+    if (Test-Path $DattoFile) {
+        Remove-Item $DattoFile -Force
     } # end if
 } # end if 
 
@@ -248,13 +248,73 @@ if (Test-PendingReboot) { Invoke-Reboot }
 
 
 ##### Base_Server Footer #####
-# Set Language Settings
-Set-Culture en-GB
-Set-WinSystemLocale en-GB
-Set-WinHomeLocation -GeoId 242
-Set-WinUserLanguageList en-GB, en-US -force
+        $siteCode = $env:COMPUTERNAME.Substring($env:COMPUTERNAME.IndexOf("-")+1,3)
+        switch ($siteCode)
+        {
+            "LON" {
+                # Set Language Settings
+                Set-Culture en-GB
+                Set-WinSystemLocale en-GB
+                Set-WinHomeLocation -GeoId 242
+                Set-WinUserLanguageList en-GB, en-US -force
+                Set-TimeZone "GMT Standard Time"
+            }
+            "SLO" {
+                # Set Language Settings
+                Set-Culture en-GB
+                Set-WinSystemLocale en-GB
+                Set-WinHomeLocation -GeoId 242
+                Set-WinUserLanguageList en-GB, en-US -force
+                Set-TimeZone "GMT Standard Time"
+            }
+            "BER" {
+                # Set Language Settings
+                Set-Culture en-GB
+                Set-WinSystemLocale en-GB
+                Set-WinHomeLocation -GeoId 242
+                Set-WinUserLanguageList en-GB, en-US -force
+                Set-TimeZone "GMT Standard Time"
+            }
+            "FKF" {
+                # Set Language Settings
+                Set-Culture en-GB
+                Set-WinSystemLocale en-GB
+                Set-WinHomeLocation -GeoId 242
+                Set-WinUserLanguageList en-GB, en-US -force
+                Set-TimeZone "GMT Standard Time"
+            }
+            "OVL" {
+                # Set Language Settings
+                Set-Culture en-GB
+                Set-WinSystemLocale en-GB
+                Set-WinHomeLocation -GeoId 242
+                Set-WinUserLanguageList en-GB, en-US -force
+                Set-TimeZone "GMT Standard Time"
+            }
+            "HIL" {
+                # Set Language Settings
+                Set-Culture en-US
+                Set-WinSystemLocale en-US
+                Set-WinHomeLocation -GeoId 244
+                Set-WinUserLanguageList en-US, en-GB -force
+                Set-TimeZone "Pacific Standard Time"
+            }
+            "VIN" {
+                # Set Language Settings
+                Set-Culture en-US
+                Set-WinSystemLocale en-US
+                Set-WinHomeLocation -GeoId 244
+                Set-WinUserLanguageList en-US, en-GB -force
+                Set-TimeZone "Eastern Standard Time"
+            }
+        } # End Switch
 
-# Set Regional Settings
+        Get-Culture
+        Get-WinSystemLocale
+        Get-WinHomeLocation
+        Get-WinUserLanguageList
+        Get-TimeZone
+
 #"Set Regional Settings and Apply to New User Accounts"
 & control intl.cpl
 
