@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20241001-1240
+$scriptVersion = 20251105-1216
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -888,7 +888,7 @@ If ($proceed) {
     cd $workingDir
 
     # Get Domain Trusts
-    $domTrusts = Get-ADTrust -Filter {Direction -eq "Outbound"} -Properties * #Get-ADTrust -Filter *
+    $domTrusts = Get-ADTrust -Filter {(Direction -eq "Outbound") -or (Direction -eq "BiDirectional")} -Properties * #Get-ADTrust -Filter * #20251105-1216
     $domTrustsCount = ($domtrusts.Name).count
     write-host "Number of domain trusts: $($domTrustsCount)" -ForegroundColor Yellow
 
