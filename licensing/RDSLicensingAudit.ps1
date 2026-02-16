@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20260216-1237"
+$scriptVersion = "20260216-1316"
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -323,30 +323,31 @@ If ($proceed) {
                             #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
                             #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (("$($_.LastLogonDate.year)$($_.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
                             
-                            $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | 
-                            Where-Object {
-                            # Original criteria:
-                            (
-                                ($_.Enabled -eq $true) -and
-                                (
-                                    ($null -eq $_.AccountExpirationDate) -or
-                                    ($_.AccountExpirationDate -gt (Get-Date).AddMonths(-1))
-                                )
-                            )
-                            -or
-                            # OR: all selected fields blank / null
-                            (
-                                $null -eq $_.LockedOut             -and
-                                $null -eq $_.Enabled               -and
-                                $null -eq $_.LastLogonDate         -and
-                                $null -eq $_.PasswordLastSet       -and
-                                $null -eq $_.AccountLockoutTime    -and
-                                $null -eq $_.AccountExpirationDate
-                            )
+                            $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Properties * |
+                                Where-Object {
 
-                        } |
-                        Sort-Object SamAccountName |
-                        Select-Object SamAccountName, ObjectClass, DistinguishedName
+                                    $thisMonth = (Get-Date).ToString("yyyyM")
+
+                                    # 1) LastLogonDate = current month
+                                    $c1 = ($_.LastLogonDate -ne $null) -and ("$($_.LastLogonDate.Year)$($_.LastLogonDate.Month)" -eq $thisMonth)
+
+                                    # 2) Enabled = True
+                                    $c2 = ($_.Enabled -eq $true)
+
+                                    # 3) AccountExpirationDate = current month
+                                    $c3 = ($_.AccountExpirationDate -ne $null) -and ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.Month)" -eq $thisMonth)
+
+                                    # 4) All three fields are blank/null/empty
+                                    $c4 =
+                                        [string]::IsNullOrWhiteSpace("$($_.LastLogonDate)") -and
+                                        [string]::IsNullOrWhiteSpace("$($_.Enabled)") -and
+                                        [string]::IsNullOrWhiteSpace("$($_.AccountExpirationDate)")
+
+                                    $c1 -or $c2 -or $c3 -or $c4
+                                } |
+                                Sort-Object SamAccountName |
+                                Select-Object SamAccountName, ObjectClass, DistinguishedName
+
 
 
                             ForEach ($fspMem in $fspMembers) { 
