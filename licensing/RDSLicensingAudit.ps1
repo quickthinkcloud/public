@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = "20260216-1316"
+$scriptVersion = "20260304-1354"
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -163,304 +163,302 @@ If ($proceed) {
 	        } #End Function FspToUsername
     #Convert-FspToUsername("S-1-5-21-3560827488-1958027982-390507998-3767") | select sAMAccountName
     Function RecursivelyEnumerateGroupObjects {
-        Param(
-            [string]$grpName #,
-            #[string]$global:parentObject = ""
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [string]$grpName,
+
+        # Optional: only pass Server/Credential when provided (local domain)
+        [string]$DomainController,
+
+        [pscredential]$Credential
+    )
+
+    # ----------------------------
+    # Init (keeps your global pattern)
+    # ----------------------------
+    if (-not $global:firstRun -or $global:firstRun -ne 1) {
+        $global:parentGrpName = ""
+        $global:firstRun = 1
+        if (-not $global:arrGroupsWithinDomains) { $global:arrGroupsWithinDomains = @() }
+    }
+
+    # ----------------------------
+    # Safe AD splat for LOCAL domain calls (PS 5.1)
+    # ----------------------------
+    $adParams = @{ ErrorAction = 'Stop' }
+    if (-not [string]::IsNullOrWhiteSpace($DomainController)) { $adParams.Server = $DomainController }
+    if ($null -ne $Credential) { $adParams.Credential = $Credential }
+
+    # ----------------------------
+    # Helpers
+    # ----------------------------
+    function Test-UserRelevant {
+        param([Microsoft.ActiveDirectory.Management.ADUser]$User)
+
+        $now = Get-Date
+
+        $loggedOnThisMonth =
+            $User.LastLogonDate -and
+            $User.LastLogonDate.Year  -eq $now.Year -and
+            $User.LastLogonDate.Month -eq $now.Month
+
+        $activeAndValid =
+            $User.Enabled -eq $true -and
+            (
+                $null -eq $User.AccountExpirationDate -or
+                $User.AccountExpirationDate -gt $now.AddMonths(-1)
+            )
+
+        $allBlank =
+            $null -eq $User.LastLogonDate -and
+            $null -eq $User.Enabled -and
+            $null -eq $User.AccountExpirationDate
+
+        return ($loggedOnThisMonth -or $activeAndValid -or $allBlank)
+    }
+
+    function Add-Row {
+        param(
+            [string]$DomainNetbios,
+            [string]$ObjectName,
+            [string]$ObjectType,
+            [string]$ParentObject
         )
+        $global:arrGroupsWithinDomains += [pscustomobject]@{
+            Domain       = $DomainNetbios
+            ObjectName   = $ObjectName
+            ObjectType   = $ObjectType
+            ParentObject = $ParentObject
+        }
+    }
 
-        if ($firstRun -ne 1) {
-            ##Create a blank array
-            $global:parentGrpName = ""
-        
-            #$global:arrGroupsWithinDomains = @()
+    # ----------------------------
+    # Domain info for output
+    # ----------------------------
+    try {
+        $localDomain = Get-ADDomain @adParams
+        $localNetbios = $localDomain.NetBIOSName
+    } catch {
+        $localNetbios = $env:USERDOMAIN
+    }
 
-            #$localDomain = Get-ADDomain
-            #Write-Host "Starting domain: $($localDomain.NetBIOSname)" 
+    Write-Host ""
+    Write-Host $grpName -ForegroundColor Green
+    Write-Host ""
 
-            $global:firstRun = 1
+    # ----------------------------
+    # Load group (local)
+    # ----------------------------
+    try {
+        $currentGroup = Get-ADGroup @adParams -Identity $grpName -Properties SamAccountName, DistinguishedName, ObjectClass, Name
+    } catch {
+        Write-Warning ("Failed to load group [{0}]. {1}" -f $grpName, $_.Exception.Message)
+        return
+    }
 
-        } # End If
-    
-        $currentObjSID = ""
-        $currentObjClass = ""
-        $currentObj = ""
-        $currentObjName = ""
+    Add-Row -DomainNetbios $localNetbios -ObjectName $currentGroup.Name -ObjectType $currentGroup.ObjectClass -ParentObject $global:parentGrpName
 
-        #Write out the current group name
-        Write-Host ""
-        Write-Host $grpName -ForegroundColor green
-        Write-Host ""
- 
-        #Populate the currentGroup
-        #TRY{$currentGroup = get-adgroup $grpName -Properties * | sort ObjectClass -Descending}CATCH{}
-        $currentGroup = get-adgroup $grpName -Properties * | sort ObjectClass -Descending
-    
-        $currentGroup | ForEach-Object {
-            # Create a new instance of a .Net object
-            $currentAdObject = New-Object System.Object
- 
-            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $_.name -Name ObjectName #The object Name i.e. name of a group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $_.objectClass -Name ObjectType # The type of object i.e. User or Group
-            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
-            $global:arrGroupsWithinDomains += $currentAdObject       
+    # ----------------------------
+    # Enumerate members (try ADWS; fallback to raw member attribute)
+    # ----------------------------
+    $groupId = $null
+    if (-not [string]::IsNullOrWhiteSpace($currentGroup.DistinguishedName)) { $groupId = $currentGroup.DistinguishedName }
+    elseif (-not [string]::IsNullOrWhiteSpace($currentGroup.SamAccountName)) { $groupId = $currentGroup.SamAccountName }
+    else { $groupId = $currentGroup.Name }
+
+    $members = $null
+    try {
+        $members = Get-ADGroupMember @adParams -Identity $groupId
+    } catch {
+        Write-Warning ("Get-ADGroupMember failed for [{0}]. Falling back to raw 'member' attribute. {1}" -f $grpName, $_.Exception.Message)
+        try {
+            $g = Get-ADGroup @adParams -Identity $groupId -Properties member
+            $resolved = @()
+            foreach ($dn in $g.member) {
+                try {
+                    $resolved += Get-ADObject @adParams -Identity $dn -Properties objectClass, objectSid, samAccountName, distinguishedName, name
+                } catch {
+                    Write-Warning ("Failed to resolve member DN [{0}] in group [{1}]. {2}" -f $dn, $grpName, $_.Exception.Message)
+                }
             }
- 
-         <#if ($firstRun -eq 1) {
-            #$global:parentGrpName = $grpName
-         }#>
-      
-        #For each USER member of the group
-        foreach($grp in $currentGroup.Members) {
-            #Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * | select *
-            $currentObj = Get-ADObject -Filter {DistinguishedName -eq $grp} -Properties * #| select *
-        
-            $currentObjSID = $currentObj.objectSid
-            $currentObjClass = $currentObj.ObjectClass
-            $currentObjName = Convert-FspToUsername($currentObj.objectSid.Value) | select sAMAccountName
- 
-            Write-Host "currentObjSID: " -NoNewline
-            Write-Host $currentObjSID -ForegroundColor Yellow
-            Write-Host "currentObjClass: " -NoNewline
-            Write-Host $currentObjClass -ForegroundColor Yellow
-            Write-Host "currentObjName: " -NoNewline
-            Write-Host $currentObjName.sAMAccountName -ForegroundColor Yellow
-            Write-Host ""
+            $members = $resolved
+        } catch {
+            Write-Warning ("Fallback enumeration also failed for [{0}]. {1}" -f $grpName, $_.Exception.Message)
+            return
+        }
+    }
 
-            #String Splitting:
-            $tempString = $currentObjName.sAMAccountName
-            #Write-Host "sAMAccountName: $($tempString)"
-            #$tempLength = $tempString.Length
-            $tempSlash = $tempString.IndexOf("\")
-            TRY {$tempDomain = $tempString.Substring(0,$tempSlash)}Catch{}
-            $tempGroup = $tempString.Substring($tempSlash+1)
- 
-            #if($currentObjClass.ToString() = "foreignSecurityPrincipal") {
-            switch ($currentObjClass.ToString())
-            {
-            #"foreignSecurityPrincipal" {$currentObjName}
-            "user" {
-                #write-host "It's a user..." -ForegroundColor Yellow
-            
-                $varMyLocalADUser = Get-ADUser -Identity "$($currentObj.objectSid)" -properties * # | select *name*, *abl*
+    if (-not $members) { return }
 
-                #if($varMyLocalADUser.Enabled -eq $True) {
-                #Last logged in this month OR Enabled -and not expired last month.
-                #if (($varMyLocalADUser.LastLogonDate.month -eq [DateTime]::Now.month) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ($varMyLocalADUser.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) {
-                #if (("$($varMyLocalADUser.LastLogonDate.year)$($varMyLocalADUser.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ("$($varMyLocalADUser.AccountExpirationDate.Year)$($varMyLocalADUser.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) {
+    # ----------------------------
+    # Expand members
+    # ----------------------------
+    foreach ($m in $members) {
 
-                $now = Get-Date
+        # Normalize class/name/sid across Get-ADGroupMember vs Get-ADObject
+        $objClass = $m.ObjectClass
+        $objName  = $null
+        $sidValue = $null
+        $dnValue  = $null
 
-                # 1️⃣ Logged on this month
-                $loggedOnThisMonth =
-                    $varMyLocalADUser.LastLogonDate -and
-                    $varMyLocalADUser.LastLogonDate.Year  -eq $now.Year -and
-                    $varMyLocalADUser.LastLogonDate.Month -eq $now.Month
+        if ($m.PSObject.Properties.Match('DistinguishedName').Count -gt 0 -and $m.DistinguishedName) { $dnValue = $m.DistinguishedName }
+        elseif ($m.PSObject.Properties.Match('distinguishedName').Count -gt 0 -and $m.distinguishedName) { $dnValue = $m.distinguishedName }
 
-                # 2️⃣ Enabled and not expired (or expires after last month)
-                $activeAndValid =
-                    $varMyLocalADUser.Enabled -eq $true -and
-                    (
-                        $null -eq $varMyLocalADUser.AccountExpirationDate -or
-                        $varMyLocalADUser.AccountExpirationDate -gt $now.AddMonths(-1)
-                    )
+        if ($m.PSObject.Properties.Match('SID').Count -gt 0 -and $m.SID) {
+            try { $sidValue = $m.SID.Value } catch { $sidValue = $null }
+        } elseif ($m.PSObject.Properties.Match('objectSid').Count -gt 0 -and $m.objectSid) {
+            try { $sidValue = $m.objectSid.Value } catch { $sidValue = $null }
+        }
 
-                # 3️⃣ All relevant fields are blank/null
-                $allBlank =
-                    $null -eq $varMyLocalADUser.LastLogonDate -and
-                    $null -eq $varMyLocalADUser.Enabled -and
-                    $null -eq $varMyLocalADUser.AccountExpirationDate
+        if ($m.PSObject.Properties.Match('SamAccountName').Count -gt 0 -and $m.SamAccountName) { $objName = $m.SamAccountName }
+        elseif ($m.PSObject.Properties.Match('samAccountName').Count -gt 0 -and $m.samAccountName) { $objName = $m.samAccountName }
+        elseif ($m.PSObject.Properties.Match('Name').Count -gt 0 -and $m.Name) { $objName = $m.Name }
 
-                if ($loggedOnThisMonth -or $activeAndValid -or $allBlank)
-                {
+        # Try resolve SID -> DOMAIN\Name if Convert-FspToUsername exists
+        $resolvedSam = $objName
+        if ($sidValue -and (Get-Command Convert-FspToUsername -ErrorAction SilentlyContinue)) {
+            try {
+                $tmp = Convert-FspToUsername $sidValue | Select-Object -First 1
+                if ($tmp -and $tmp.sAMAccountName) { $resolvedSam = $tmp.sAMAccountName }
+            } catch {}
+        }
 
+        # Debug output
+        Write-Host "currentObjSID: " -NoNewline
+        Write-Host ($sidValue) -ForegroundColor Yellow
+        Write-Host "currentObjClass: " -NoNewline
+        Write-Host $objClass -ForegroundColor Yellow
+        Write-Host "currentObjName: " -NoNewline
+        Write-Host $resolvedSam -ForegroundColor Yellow
+        Write-Host ""
 
-                    # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
+        switch ($objClass) {
 
-                    #if ($varMyLocalADUser.lastLogonDate -ge [DateTime]::Now.AddDays(-31)) {
+            'user' {
+                # Load full user props locally
+                $u = $null
+                try {
+                    if ($dnValue) {
+                        $u = Get-ADUser @adParams -Identity $dnValue -Properties *
+                    } elseif ($sidValue) {
+                        $u = Get-ADUser @adParams -Filter ("SID -eq '{0}'" -f $sidValue) -Properties *
+                    } elseif ($resolvedSam) {
+                        $u = Get-ADUser @adParams -Identity $resolvedSam -Properties *
+                    }
+                } catch {
+                    Write-Warning ("Failed to load user [{0}]. {1}" -f $resolvedSam, $_.Exception.Message)
+                    continue
+                }
 
-                        #write-host "user"
-                        $currentObj.Name
-                        # Create a new instance of a .Net object
-                        $currentAdObject = New-Object System.Object
- 
-                        # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $localDomain.NetBIOSname -Name Domain #The Domain that hosts this object
-                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObj.objectClass -Name ObjectType # The type of object i.e. User or Group
-                        $currentAdObject  | Add-Member -MemberType NoteProperty -Value "NoneStaticString" -Name ParentObject #The name of a parent obeject
-                        #$currentAdObject  | Add-Member -MemberType NoteProperty -Value $parentGrpName -Name ParentObject #The name of a parent obeject
-                        $global:arrGroupsWithinDomains += $currentAdObject
-                        #write-host "end of user"    
+                if ($u -and (Test-UserRelevant -User $u)) {
+                    Add-Row -DomainNetbios $localNetbios -ObjectName $u.SamAccountName -ObjectType $u.ObjectClass -ParentObject $currentGroup.SamAccountName
+                }
+            }
 
+            'group' {
+                $oldParent = $global:parentGrpName
+                $global:parentGrpName = $currentGroup.SamAccountName
+                $nextGroup = $m.Name
+                if (-not $nextGroup) { $nextGroup = $resolvedSam }
+                if ($nextGroup) {
+                    RecursivelyEnumerateGroupObjects -grpName $nextGroup -DomainController $DomainController -Credential $Credential
+                }
+                $global:parentGrpName = $oldParent
+            }
 
-                    #} # end if 
-              
-                }#End if
-            } # end user
-            "group" {
-                #write-host "Group..." -ForegroundColor Cyan
+            'foreignSecurityPrincipal' {
+                # ----------------------------
+                # Remote domain expansion (restored)
+                # ----------------------------
+                # Expect resolvedSam like "NETBIOS\SamAccountName" when Convert-FspToUsername works.
+                $tempDomain = $null
+                $tempObject = $null
 
-                #$parentGrpName = $grpName
-                RecursivelyEnumerateGroupObjects($currentObj.Name)
-            } #End of "group"
-            "foreignSecurityPrincipal" {
-                #write-host "foreignSecurityPrincipal..." -ForegroundColor Gray
-                $grpName = $tempGroup
+                if ($resolvedSam -and ($resolvedSam -is [string]) -and ($resolvedSam.Contains('\'))) {
+                    $idx = $resolvedSam.IndexOf('\')
+                    if ($idx -gt 0) {
+                        $tempDomain = $resolvedSam.Substring(0, $idx)
+                        $tempObject = $resolvedSam.Substring($idx + 1)
+                    }
+                }
 
-                $discoveredDomainOfADDomain = $tempDomain #"EU"
-                $discoveredDomainOfADObject = $grpName #"QTCAdmin"
+                # Always record the FSP itself
+                $fspNameToRecord = $resolvedSam
+                if (-not $fspNameToRecord) { $fspNameToRecord = $objName }
+                Add-Row -DomainNetbios $localNetbios -ObjectName $fspNameToRecord -ObjectType 'foreignSecurityPrincipal' -ParentObject $currentGroup.SamAccountName
 
-                foreach ($rec in $arrTrustedDomainsFromCSV ) {
-                    If ($rec.NetBIOS -eq $discoveredDomainOfADDomain) {
-                        $DomCreds = Get-Variable -Name "trustedDom$($rec.ID)Creds" -ValueOnly
-                        #Get-ADUser -Identity $discoveredDomainOfADObject -Server $rec.FQDN -Credential $DomCreds -properties * | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                        #$fspMembers = Get-AdGroupMember -Identity $grpName -Server eu.cyrilsweett.com -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                        Try { #If it's a user...
-                            #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (("$($_.LastLogonDate.year)$($_.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            
-                            $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Properties * |
-                                Where-Object {
+                if (-not $tempDomain -or -not $tempObject) {
+                    # Can't expand without a parsed NETBIOS\name
+                    continue
+                }
 
-                                    $thisMonth = (Get-Date).ToString("yyyyM")
+                # Find trusted domain record (expects arrTrustedDomainsFromCSV like your original)
+                $trustedList = $null
+                if ($script:arrTrustedDomainsFromCSV) { $trustedList = $script:arrTrustedDomainsFromCSV }
+                elseif ($global:arrTrustedDomainsFromCSV) { $trustedList = $global:arrTrustedDomainsFromCSV }
 
-                                    # 1) LastLogonDate = current month
-                                    $c1 = ($_.LastLogonDate -ne $null) -and ("$($_.LastLogonDate.Year)$($_.LastLogonDate.Month)" -eq $thisMonth)
+                if (-not $trustedList) {
+                    Write-Warning ("No arrTrustedDomainsFromCSV found; cannot expand foreignSecurityPrincipal [{0}]." -f $fspNameToRecord)
+                    continue
+                }
 
-                                    # 2) Enabled = True
-                                    $c2 = ($_.Enabled -eq $true)
+                foreach ($rec in $trustedList) {
+                    if ($rec.NetBIOS -ne $tempDomain) { continue }
 
-                                    # 3) AccountExpirationDate = current month
-                                    $c3 = ($_.AccountExpirationDate -ne $null) -and ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.Month)" -eq $thisMonth)
+                    # Your original pattern: variable named trustedDom<ID>Creds contains creds for that domain
+                    $domCreds = $null
+                    try { $domCreds = Get-Variable -Name ("trustedDom{0}Creds" -f $rec.ID) -ValueOnly -ErrorAction SilentlyContinue } catch {}
 
-                                    # 4) All three fields are blank/null/empty
-                                    $c4 =
-                                        [string]::IsNullOrWhiteSpace("$($_.LastLogonDate)") -and
-                                        [string]::IsNullOrWhiteSpace("$($_.Enabled)") -and
-                                        [string]::IsNullOrWhiteSpace("$($_.AccountExpirationDate)")
+                    $remoteParams = @{ ErrorAction = 'Stop'; Server = $rec.FQDN }
+                    if ($domCreds) { $remoteParams.Credential = $domCreds }
 
-                                    $c1 -or $c2 -or $c3 -or $c4
-                                } |
-                                Sort-Object SamAccountName |
-                                Select-Object SamAccountName, ObjectClass, DistinguishedName
+                    # 1) Try as USER in remote domain
+                    try {
+                        $ru = Get-ADUser @remoteParams -Identity $tempObject -Properties *
+                        if ($ru -and (Test-UserRelevant -User $ru)) {
+                            Add-Row -DomainNetbios $tempDomain -ObjectName $ru.SamAccountName -ObjectType $ru.ObjectClass -ParentObject $currentGroup.SamAccountName
+                        }
+                        break
+                    } catch {
+                        # Not a user or lookup failed â€” try as group next
+                    }
 
-
-
-                            ForEach ($fspMem in $fspMembers) { 
-                                #String Splitting:
-	                            $tempString = $currentObjName.sAMAccountName
-	                            #$tempLength = $tempString.Length
-	                            $tempSlash = $tempString.IndexOf("\")
-	                            $tempDomain = $tempString.Substring(0,$tempSlash)
-	                            $tempGroup = $tempString.Substring($tempSlash+1)
-
-	                            # Create a new instance of a .Net object
-	                            $currentAdObject = New-Object System.Object
-                                # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                                $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentGroup.sAMAccountName -Name ParentObject #The name of a parent obeject
-                                $global:arrGroupsWithinDomains += $currentAdObject
-                            }
-                        } Catch { #if it's not a user...
-                            Try {
-                                #write-host "notInDomainCounter: $($notInDomainCounter) - grpName: $($grpName) - Domain: $($trustedDom1) - Not a user." -ForegroundColor Yellow
-                                $fspMembers = Get-AdGroupMember -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                                #$fspMembers = Get-AdGroupMember -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -Recursive | sort samaccountname | select samaccountname,objectClass, distinguishedname
-                                ForEach ($fspMem in $fspMembers) { 
-
-                                #$membersOfFSPGroup = Get-ADUser -Identity $fspMem -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
-
-                                $fspMem
-                                write-host "fspmem output" -ForegroundColor Yellow
-                            
-
-                                    if ($fspMem.objectClass -eq "user") {
-                                        Write-Host "fspmem IS a user"
-                                        #$fspmem.samaccountname
-
-
-                                        $fspMemProperties = Get-ADUser $fspmem.samaccountname -Server $rec.FQDN -Credential $DomCreds -properties *
-                                        $fspMemProperties.Name
-                                        $fspMemProperties.SamAccountName
-                                        $fspMemProperties.Enabled
-                                        $fspMemProperties.LastLogonDate
-                                        $fspMemProperties.AccountExpirationDate
-
-    #(($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month))))
-
-                                        if ($fspMemProperties.Enabled) {
-
-                                            #String Splitting:
-                                            $tempString = $currentObjName.sAMAccountName
-                                            #$tempLength = $tempString.Length
-                                            $tempSlash = $tempString.IndexOf("\")
-                                            $tempDomain = $tempString.Substring(0,$tempSlash)
-                                            $tempGroup = $tempString.Substring($tempSlash+1)
-                                            # Create a new instance of a .Net object
-                                            $currentAdObject = New-Object System.Object
-                                            # Add user-defined customs members: the records retrieved with the three PowerShell commands
-                                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $tempDomain -Name Domain #The Domain that hosts this object
-                                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.samaccountname -Name ObjectName #The object Name i.e. name of a group
-                                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $fspMem.objectClass -Name ObjectType # The type of object i.e. User or Group
-                                            $currentAdObject  | Add-Member -MemberType NoteProperty -Value $currentObjName.sAMAccountName -Name ParentObject #The name of a parent obeject
-                                            $global:arrGroupsWithinDomains += $currentAdObject
-
-
-
-                                        } Else {
-                                            #pause
-                                        }
-
-
-                                    } else {
-                                        Write-Host "fspmem NOT a user"
-                                        $fspmem.samaccountname
+                    # 2) Try as GROUP in remote domain, expand members recursively (remote only)
+                    try {
+                        $rmembers = Get-ADGroupMember @remoteParams -Identity $tempObject -Recursive
+                        foreach ($rm in $rmembers) {
+                            if ($rm.ObjectClass -eq 'user') {
+                                try {
+                                    $ru2 = Get-ADUser @remoteParams -Identity $rm.DistinguishedName -Properties *
+                                    if ($ru2 -and (Test-UserRelevant -User $ru2)) {
+                                        Add-Row -DomainNetbios $tempDomain -ObjectName $ru2.SamAccountName -ObjectType $ru2.ObjectClass -ParentObject $currentGroup.SamAccountName
                                     }
-
-                                    #pause
-
-
+                                } catch {
+                                    Write-Warning ("Remote user load failed [{0}] via [{1}]. {2}" -f $rm.Name, $rec.FQDN, $_.Exception.Message)
                                 }
-                            } Catch {
-                                Write-Host "currentObj: " -NoNewline
-                                Write-Host $currentObj
-                                Write-Host "tempDomain: " -NoNewline
-                                Write-Host $tempDomain
-                                Write-Host "tempGroup: " -NoNewline
-                                Write-Host $tempGroup
-                                Write-Host "grpName: " -NoNewline
-                                Write-Host $grpName
-                                Write-Host "currentObjSID: " -NoNewline
-                                Write-Host $currentObjSID
-                                Write-Host "currentObjClass: " -NoNewline
-                                Write-Host $currentObjClass
-                                Write-Host "currentObjName: " -NoNewline
-                                Write-Host $currentObjName
-                                Write-Host "discoveredDomainOfADDomain: " -NoNewline
-                                Write-Host $discoveredDomainOfADDomain
-                                Write-Host "discoveredDomainOfADObject: " -NoNewline
-                                Write-Host $discoveredDomainOfADObject
+                            } elseif ($rm.ObjectClass -eq 'group') {
+                                Add-Row -DomainNetbios $tempDomain -ObjectName $rm.Name -ObjectType 'group' -ParentObject $currentGroup.SamAccountName
+                            }
+                        }
+                        break
+                    } catch {
+                        Write-Warning ("Remote expansion failed for [{0}] via [{1}]. {2}" -f $fspNameToRecord, $rec.FQDN, $_.Exception.Message)
+                        break
+                    }
+                }
+            }
 
-                                #Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.DistinguisedName))"
-                                Add-Content $LogPath "$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss'):RDSLicensingAudit ERROR: $($currentObj.objectSid))"
-                            } # End Try Catch
-                            #
-                        } # End Try Catch
-                    } # End if
-                } #End foreach
+            Default {
+                $nameToRecord = $resolvedSam
+                if (-not $nameToRecord) { $nameToRecord = $objName }
+                Add-Row -DomainNetbios $localNetbios -ObjectName $nameToRecord -ObjectType $objClass -ParentObject $currentGroup.SamAccountName
+            }
+        }
+    }
+} #End Function RecursivelyEnumerateGroupObjects #20260304Update
 
-            } #end "foreignSecurityPrincipal"
 
-            } #End switch
-        } #End of foreach($grp of $currentGroup.Members)
-
-    } #End Function RecursivelyEnumerateGroupObjects
     Function Get-LocalDomainNETBIOSName {
         #Get local domain NETBIOS name
         $global:localDomain = Get-ADDomain | select NetBIOSname
