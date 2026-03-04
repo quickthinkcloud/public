@@ -27,7 +27,7 @@ param (
 )
 ### END OF PARAMETERS ###
 
-$scriptVersion = 20251105-1216
+$scriptVersion = "20260216-1316"
 
 $proceed = $false
 $daysOfMonthToAudit = @(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -248,7 +248,33 @@ If ($proceed) {
                 #if($varMyLocalADUser.Enabled -eq $True) {
                 #Last logged in this month OR Enabled -and not expired last month.
                 #if (($varMyLocalADUser.LastLogonDate.month -eq [DateTime]::Now.month) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ($varMyLocalADUser.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) {
-                if (("$($varMyLocalADUser.LastLogonDate.year)$($varMyLocalADUser.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ("$($varMyLocalADUser.AccountExpirationDate.Year)$($varMyLocalADUser.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) {
+                #if (("$($varMyLocalADUser.LastLogonDate.year)$($varMyLocalADUser.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($varMyLocalADUser.Enabled -eq $true) -and (($varMyLocalADUser.AccountExpirationDate -eq $null) -or ("$($varMyLocalADUser.AccountExpirationDate.Year)$($varMyLocalADUser.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) {
+
+                $now = Get-Date
+
+                # 1️⃣ Logged on this month
+                $loggedOnThisMonth =
+                    $varMyLocalADUser.LastLogonDate -and
+                    $varMyLocalADUser.LastLogonDate.Year  -eq $now.Year -and
+                    $varMyLocalADUser.LastLogonDate.Month -eq $now.Month
+
+                # 2️⃣ Enabled and not expired (or expires after last month)
+                $activeAndValid =
+                    $varMyLocalADUser.Enabled -eq $true -and
+                    (
+                        $null -eq $varMyLocalADUser.AccountExpirationDate -or
+                        $varMyLocalADUser.AccountExpirationDate -gt $now.AddMonths(-1)
+                    )
+
+                # 3️⃣ All relevant fields are blank/null
+                $allBlank =
+                    $null -eq $varMyLocalADUser.LastLogonDate -and
+                    $null -eq $varMyLocalADUser.Enabled -and
+                    $null -eq $varMyLocalADUser.AccountExpirationDate
+
+                if ($loggedOnThisMonth -or $activeAndValid -or $allBlank)
+                {
+
 
                     # Write-Host "An Enabled account $($varMyLocalADUser.samAccountName)" -ForegroundColor Red
 
@@ -295,7 +321,35 @@ If ($proceed) {
                             #$fspMembers = Get-ADUser -Filter {(SID -eq "$($currentObjSID)")} -Server $rec.FQDN -Credential $DomCreds -properties * | Where {$_.Enabled -eq $true} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                             #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where {($_.Enabled -eq $true) -and ($_.lastLogonDate -le [DateTime]::Now.AddDays(-31))} | sort samaccountname | select samaccountname, objectClass, distinguishedname
                             #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (($_.LastLogonDate.month -eq [DateTime]::Now.month) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ($_.AccountExpirationDate.month -gt [DateTime]::Now.AddMonths(-1).month)))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
-                            $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (("$($_.LastLogonDate.year)$($_.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                            #$fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -properties * | Where { (("$($_.LastLogonDate.year)$($_.LastLogonDate.month)" -eq (Get-Date).ToString("yyyyM")) -or (($_.Enabled -eq $true) -and (($_.AccountExpirationDate -eq $null) -or ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.month)" -gt ((Get-Date).AddMonths(-1)).ToString("yyyyM"))))) } | sort samaccountname | select samaccountname, objectClass, distinguishedname
+                            
+                            $fspMembers = Get-ADUser -Identity $grpName -Server $rec.FQDN -Credential $DomCreds -Properties * |
+                                Where-Object {
+
+                                    $thisMonth = (Get-Date).ToString("yyyyM")
+
+                                    # 1) LastLogonDate = current month
+                                    $c1 = ($_.LastLogonDate -ne $null) -and ("$($_.LastLogonDate.Year)$($_.LastLogonDate.Month)" -eq $thisMonth)
+
+                                    # 2) Enabled = True
+                                    $c2 = ($_.Enabled -eq $true)
+
+                                    # 3) AccountExpirationDate = current month
+                                    $c3 = ($_.AccountExpirationDate -ne $null) -and ("$($_.AccountExpirationDate.Year)$($_.AccountExpirationDate.Month)" -eq $thisMonth)
+
+                                    # 4) All three fields are blank/null/empty
+                                    $c4 =
+                                        [string]::IsNullOrWhiteSpace("$($_.LastLogonDate)") -and
+                                        [string]::IsNullOrWhiteSpace("$($_.Enabled)") -and
+                                        [string]::IsNullOrWhiteSpace("$($_.AccountExpirationDate)")
+
+                                    $c1 -or $c2 -or $c3 -or $c4
+                                } |
+                                Sort-Object SamAccountName |
+                                Select-Object SamAccountName, ObjectClass, DistinguishedName
+
+
+
                             ForEach ($fspMem in $fspMembers) { 
                                 #String Splitting:
 	                            $tempString = $currentObjName.sAMAccountName
